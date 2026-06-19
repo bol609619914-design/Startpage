@@ -292,11 +292,12 @@ async function handleSubmit() {
 
     .el-input {
       --el-input-height: 32px;
+      --el-input-focus-border-color: var(--el-color-primary);
     }
 
     .el-input__wrapper {
       overflow: hidden;
-      background-color: color-mix(in srgb, var(--el-fill-color-blank) 72%, transparent);
+      background-color: transparent;
       border-radius: 15px;
       box-shadow: 0 0 0 1px color-mix(in srgb, var(--el-border-color) 58%, transparent) inset;
       transition:
@@ -304,8 +305,10 @@ async function handleSubmit() {
         box-shadow 180ms ease;
 
       &.is-focus {
-        background-color: color-mix(in srgb, var(--el-fill-color-blank) 88%, transparent);
-        box-shadow: 0 0 0 1px color-mix(in srgb, var(--el-color-warning) 46%, transparent) inset;
+        background-color: color-mix(in srgb, var(--el-color-primary) 4%, transparent);
+        box-shadow:
+          0 0 0 1px color-mix(in srgb, var(--el-color-primary) 56%, transparent) inset,
+          0 0 0 3px color-mix(in srgb, var(--el-color-primary) 10%, transparent);
       }
     }
 
@@ -320,7 +323,8 @@ async function handleSubmit() {
         background-image: none !important;
         background-clip: content-box !important;
         border-radius: 15px;
-        box-shadow: 0 0 0 1000px color-mix(in srgb, var(--el-fill-color-blank) 88%, white 12%) inset !important;
+        -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+        box-shadow: 0 0 0 1000px transparent inset !important;
         transition:
           background-color 999999s ease-out,
           color 999999s ease-out;

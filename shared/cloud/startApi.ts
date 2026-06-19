@@ -75,7 +75,9 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
 
   const response = await fetch(endpoint(path), {
     ...init,
+    cache: 'no-store',
     headers: {
+      'Cache-Control': 'no-store',
       'Content-Type': 'application/json',
       ...init.headers,
     },
@@ -136,7 +138,7 @@ export async function saveCloudDock(email: string, data: QuickLinksData) {
 }
 
 export async function fetchDashboard(email: string) {
-  const params = new URLSearchParams({ email })
+  const params = new URLSearchParams({ email, t: String(Date.now()) })
   return request<DashboardData>(`/dashboard?${params.toString()}`)
 }
 

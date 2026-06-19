@@ -61,7 +61,10 @@ const DEFAULT_RSS_SOURCE = {
 }
 
 const jsonHeaders = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
   'Content-Type': 'application/json; charset=utf-8',
+  Expires: '0',
+  Pragma: 'no-cache',
 }
 
 function normalizeEmail(email: unknown) {
