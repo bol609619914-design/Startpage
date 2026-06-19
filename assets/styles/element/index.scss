@@ -1,0 +1,41 @@
+@use '../variables.scss' as *;
+
+$--slider: (
+  'button-size': 15px,
+);
+$--border-radius: (
+  'base': 20px,
+);
+$--messagebox: (
+  'border-radius': 20px,
+);
+$--popper: (
+  'border-radius': 20px,
+);
+$--backtop: (
+  'bg-color': color-mix(in oklch, var(--el-color-primary), transparent 90%),
+  'hover-bg-color': color-mix(in oklch, var(--el-color-primary-light-5), transparent 60%),
+);
+$--custom-font-family:
+  #{$font-apple},
+  #{$font-common},
+  #{$font-fallback};
+$--font-family: (
+  '': $--custom-font-family,
+);
+
+@forward 'element-plus/theme-chalk/src/common/var.scss' with (
+  // do not use same name, it will override.
+  $slider: $--slider,
+  $border-radius: $--border-radius,
+  $messagebox: $--messagebox,
+  $popper: $--popper,
+  $backtop: $--backtop,
+  $font-family: $--font-family
+);
+
+// if you want to import all
+// @use "element-plus/theme-chalk/src/index.scss" as *;
+
+// custom dark variables
+@use './dark.scss';

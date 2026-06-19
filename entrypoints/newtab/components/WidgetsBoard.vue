@@ -1,0 +1,846 @@
+<script setup lang="ts">
+import { ElMessage } from 'element-plus'
+import CloseRound from '~icons/ic/round-close'
+import RssFeedRound from '~icons/ic/round-rss-feed'
+import StickyNote2Round from '~icons/ic/round-sticky-note-2'
+
+import {
+  createNote,
+  fetchDashboard,
+  fetchHotList,
+  type HotListData,
+  type HotListKind,
+  type HotListItem,
+  isStartCloudEnabled,
+  updateNote,
+  type DashboardData,
+  type StartNote,
+} from '@/shared/cloud/startApi'
+import { getAuthSession, type AuthSession } from '@newtab/shared/auth'
+
+type PanelKind = 'notes' | 'rss'
+
+const session = ref<AuthSession | null>(null)
+const dashboard = ref<DashboardData | null>(null)
+const noteBody = ref('')
+const loading = ref(false)
+const hotLoading = ref(false)
+const panelOpen = ref(false)
+const activePanel = ref<PanelKind>('notes')
+const hotKind = ref<HotListKind>('zhihu')
+const hotLists = reactive<Partial<Record<HotListKind, HotListData>>>({})
+
+const visible = computed(() => Boolean(session.value && isStartCloudEnabled()))
+const activeNotes = computed(() => (dashboard.value?.notes ?? []).slice(0, 20))
+const panelTitle = computed(() => (activePanel.value === 'notes' ? '便签' : '热榜'))
+const currentHotList = computed(() => hotLists[hotKind.value])
+const hotItems = computed(() => (currentHotList.value?.data ?? []).slice(0, 20))
+const hotOptions: Array<{ label: string; value: HotListKind }> = [
+  { label: '知乎', value: 'zhihu' },
+  { label: '百度', value: 'baidu' },
+  { label: '微博', value: 'weibo' },
+]
+
+async function load() {
+  session.value = await getAuthSession()
+  if (!session.value || !isStartCloudEnabled()) return
+  loading.value = true
+  try {
+    dashboard.value = await fetchDashboard(session.value.email)
+  } finally {
+    loading.value = false
+  }
+}
+
+async function loadHotList(kind = hotKind.value, force = false) {
+  if (!isStartCloudEnabled()) return
+  if (hotLists[kind] && !force) return
+  hotLoading.value = true
+  try {
+    hotLists[kind] = await fetchHotList(kind)
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '热榜加载失败')
+  } finally {
+    hotLoading.value = false
+  }
+}
+
+async function addNote() {
+  if (!session.value) return
+  const body = noteBody.value.trim()
+  if (!body) return
+  try {
+    await createNote(session.value.email, body)
+    noteBody.value = ''
+    await load()
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '保存失败')
+  }
+}
+
+async function toggleNote(id: string, done: number | boolean) {
+  if (!session.value) return
+  try {
+    await updateNote(session.value.email, id, { done: !done })
+    await load()
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '更新失败')
+  }
+}
+
+function openPanel(kind: PanelKind) {
+  activePanel.value = kind
+  panelOpen.value = true
+  void load()
+  if (kind === 'rss') void loadHotList()
+}
+
+function formatNoteDate(note: StartNote) {
+  const date = new Date(note.createdAt || note.updatedAt || Date.now())
+  if (Number.isNaN(date.getTime())) return ''
+  return new Intl.DateTimeFormat('zh-CN', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date)
+}
+
+function formatHotMeta(item: HotListItem) {
+  return [item.hot, item.desc].filter(Boolean).join(' · ')
+}
+
+onMounted(load)
+watch(hotKind, (kind) => {
+  if (panelOpen.value && activePanel.value === 'rss') void loadHotList(kind)
+})
+window.addEventListener('start-account-signed-in', () => void load())
+window.addEventListener('start-account-signed-out', () => {
+  session.value = null
+  dashboard.value = null
+  panelOpen.value = false
+})
+</script>
+
+<template>
+  <template v-if="visible">
+    <button
+      type="button"
+      class="action-btn widgets-board__trigger widgets-board__trigger--rss"
+      title="热榜"
+      aria-label="打开热榜"
+      @click="openPanel('rss')"
+    >
+      <el-icon><rss-feed-round /></el-icon>
+    </button>
+    <button
+      type="button"
+      class="action-btn widgets-board__trigger widgets-board__trigger--notes"
+      title="便签"
+      aria-label="打开便签"
+      @click="openPanel('notes')"
+    >
+      <el-icon><sticky-note2-round /></el-icon>
+    </button>
+
+    <teleport to="body">
+      <transition name="widgets-board__fade">
+        <div
+          v-if="panelOpen"
+          class="widgets-board__scrim"
+          aria-hidden="true"
+          @click="panelOpen = false"
+        ></div>
+      </transition>
+      <transition name="widgets-board__slide">
+        <aside
+          v-if="panelOpen"
+          v-loading="loading"
+          class="widgets-board__drawer"
+          :class="`widgets-board__drawer--${activePanel}`"
+          aria-modal="true"
+          role="dialog"
+          :aria-label="panelTitle"
+          @contextmenu.stop
+        >
+          <header class="widgets-board__header">
+            <div>
+              <h2>{{ panelTitle }}</h2>
+              <p v-if="activePanel === 'notes'">只保留最近三天</p>
+              <p v-else>{{ currentHotList?.title || '聚合热榜已接入' }}</p>
+            </div>
+            <button
+              type="button"
+              class="widgets-board__close"
+              aria-label="关闭"
+              @click="panelOpen = false"
+            >
+              <el-icon><close-round /></el-icon>
+            </button>
+          </header>
+
+          <section v-if="activePanel === 'notes'" class="widgets-board__section">
+            <div class="widgets-board__input">
+              <el-input
+                v-model="noteBody"
+                placeholder="记一件事"
+                size="large"
+                @keyup.enter="addNote"
+              />
+              <el-button type="primary" size="large" @click="addNote">添加</el-button>
+            </div>
+            <div class="widgets-board__list">
+              <button
+                v-for="note in activeNotes"
+                :key="note.id"
+                class="widgets-board__note"
+                type="button"
+                @click="toggleNote(note.id, note.done)"
+              >
+                <span class="widgets-board__note-body" :class="{ 'is-done': Boolean(note.done) }">
+                  {{ note.body || note.title }}
+                </span>
+                <time class="widgets-board__note-date">{{ formatNoteDate(note) }}</time>
+              </button>
+              <p v-if="!activeNotes.length" class="widgets-board__empty">暂无便签</p>
+            </div>
+          </section>
+
+          <section v-else class="widgets-board__section">
+            <el-segmented
+              v-model="hotKind"
+              class="widgets-board__hot-tabs"
+              :options="hotOptions"
+              block
+            />
+            <div v-loading="hotLoading" class="widgets-board__list widgets-board__list--hot">
+              <a
+                v-for="item in hotItems"
+                :key="`${hotKind}:${item.index}:${item.title}`"
+                class="widgets-board__hot"
+                :href="item.mobileUrl || item.url"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <strong>{{ item.index }}</strong>
+                <span>{{ item.title }}</span>
+                <small>{{ formatHotMeta(item) }}</small>
+              </a>
+              <p v-if="!hotItems.length && !hotLoading" class="widgets-board__empty">暂无热榜</p>
+            </div>
+          </section>
+        </aside>
+      </transition>
+    </teleport>
+  </template>
+</template>
+
+<style lang="scss">
+.widgets-board {
+  --p2m-ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --p2m-ease-settle: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --p2m-ease-narrative: cubic-bezier(0.34, 0, 0.14, 1);
+
+  &__trigger {
+    overflow: visible;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    transform: translateZ(0);
+
+    &::before,
+    &::after {
+      display: none;
+    }
+
+    &:hover,
+    &:focus-visible {
+      .el-icon {
+        filter: drop-shadow(0 0 4px rgb(255 255 255 / 70%));
+      }
+    }
+
+    &--notes {
+      &::before {
+        top: 8px;
+        right: 8px;
+        width: 11px;
+        height: 11px;
+        background: color-mix(in srgb, var(--el-color-warning) 82%, white);
+        border-radius: 2px;
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 58% 82%, 0 100%);
+        transform: translate(-6px, 4px) rotate(-18deg) scale(0.2);
+        transform-origin: 50% 50%;
+      }
+
+      &::after {
+        bottom: 10px;
+        left: 10px;
+        width: 14px;
+        height: 2px;
+        background: currentColor;
+        border-radius: 999px;
+        box-shadow:
+          0 -5px 0 currentColor,
+          0 -10px 0 currentColor;
+        transform: translateX(7px) scaleX(0.12);
+        transform-origin: left center;
+      }
+
+      &:hover,
+      &:focus-visible {
+        .el-icon {
+          animation: none;
+        }
+
+        &::before {
+          animation: none;
+        }
+
+        &::after {
+          animation: none;
+        }
+      }
+    }
+
+    &--rss {
+      &::before,
+      &::after {
+        inset: 11px auto auto 10px;
+        width: 6px;
+        height: 6px;
+        border: 2px solid currentColor;
+        border-radius: 50%;
+        transform: scale(0.3);
+      }
+
+      &::after {
+        inset: 7px auto auto 6px;
+        width: 14px;
+        height: 14px;
+        border-top-color: transparent;
+        border-left-color: transparent;
+        transition-delay: 45ms;
+      }
+
+      &:hover,
+      &:focus-visible {
+        .el-icon {
+          animation: none;
+        }
+
+        &::before,
+        &::after {
+          animation: none;
+        }
+
+        &::after {
+          animation-delay: 80ms;
+        }
+      }
+    }
+  }
+
+  &__scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 1999;
+    background: rgb(0 0 0 / 26%);
+    backdrop-filter: blur(1px);
+  }
+
+  &__drawer {
+    position: fixed;
+    inset: 10px 10px 10px auto;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    width: min(400px, calc(100vw - 20px));
+    max-width: calc(100% - 20px);
+    padding: 20px;
+    overflow: hidden;
+    color: var(--el-text-color-primary);
+    background: color-mix(in srgb, var(--el-bg-color-page) 84%, transparent);
+    border: 1px solid color-mix(in srgb, var(--el-border-color) 54%, transparent);
+    border-radius: 20px;
+    box-shadow: 0 18px 48px rgb(0 0 0 / 22%);
+    backdrop-filter: blur(20px) saturate(1.25);
+    transform-origin: right center;
+
+    html.colorful & {
+      background: color-mix(in srgb, var(--el-color-primary-light-9) 82%, transparent);
+    }
+
+    .el-loading-mask {
+      background-color: transparent;
+      backdrop-filter: none;
+    }
+
+    .el-loading-spinner {
+      filter: drop-shadow(0 4px 12px rgb(0 0 0 / 18%));
+    }
+  }
+
+  &__header {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 22px;
+
+    h2 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--el-text-color-secondary);
+    }
+  }
+
+  &__close {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    color: var(--el-text-color-secondary);
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    transition:
+      color 180ms ease,
+      background-color 180ms ease,
+      transform 180ms ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--el-color-primary);
+      background: color-mix(in srgb, var(--el-color-primary) 10%, transparent);
+      transform: scale(1.04);
+    }
+  }
+
+  &__section {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  &__input {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    margin-bottom: 16px;
+
+    .el-input__wrapper {
+      border-radius: 999px;
+      transition:
+        background-color 180ms ease,
+        box-shadow 180ms ease;
+
+      &.is-focus {
+        background-color: color-mix(in srgb, var(--el-fill-color-blank) 88%, transparent);
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--el-color-warning) 42%, transparent) inset;
+      }
+    }
+
+    .el-button {
+      border-radius: 999px;
+    }
+  }
+
+  &__list {
+    display: grid;
+    gap: 10px;
+    max-height: calc(100vh - 140px);
+    overflow: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    .el-loading-mask {
+      background-color: transparent;
+    }
+
+    &--hot {
+      max-height: calc(100vh - 190px);
+      padding-top: 4px;
+    }
+  }
+
+  &__note,
+  &__hot {
+    min-width: 0;
+    padding: 12px;
+    color: inherit;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    background: color-mix(in srgb, var(--el-bg-color) 72%, transparent);
+    border: 1px solid color-mix(in srgb, var(--el-border-color) 58%, transparent);
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgb(0 0 0 / 3%);
+    transition:
+      border-color 180ms ease,
+      box-shadow 180ms ease,
+      background-color 180ms ease,
+      transform 180ms ease;
+
+    &:hover,
+    &:focus-visible {
+      border-color: color-mix(in srgb, var(--el-color-primary) 36%, var(--el-border-color));
+      box-shadow: 0 12px 24px rgb(0 0 0 / 7%);
+      transform: translateX(-2px);
+    }
+  }
+
+  &__note {
+    display: grid;
+    gap: 6px;
+  }
+
+  &__note-body {
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  &__note-date {
+    font-size: 12px;
+    color: var(--el-text-color-placeholder);
+  }
+
+  &__hot-tabs {
+    position: relative;
+    z-index: 1;
+    padding: 3px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--el-fill-color-blank) 78%, transparent);
+    border-radius: 999px;
+    box-shadow: 0 8px 18px rgb(0 0 0 / 4%);
+
+    .el-segmented__item {
+      border-radius: 999px;
+    }
+
+    .el-segmented__item-selected {
+      box-shadow: 0 5px 14px color-mix(in srgb, var(--el-color-primary) 24%, transparent);
+    }
+  }
+
+  &__hot {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 4px 10px;
+    align-items: center;
+
+    strong {
+      display: grid;
+      grid-row: span 2;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      font-size: 13px;
+      line-height: 1;
+      color: color-mix(in srgb, var(--el-color-primary) 72%, var(--el-text-color-primary));
+      background: color-mix(in srgb, var(--el-color-primary) 12%, transparent);
+      border-radius: 50%;
+    }
+
+    span {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 14px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    small {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 12px;
+      color: var(--el-text-color-placeholder);
+      white-space: nowrap;
+    }
+  }
+
+  &__empty {
+    margin: 16px 0 0;
+    font-size: 14px;
+    color: var(--el-text-color-placeholder);
+  }
+
+  .is-done {
+    color: var(--el-text-color-placeholder);
+    text-decoration: line-through;
+  }
+
+  &__fade-enter-active,
+  &__fade-leave-active {
+    transition: opacity 180ms ease;
+  }
+
+  &__fade-enter-from,
+  &__fade-leave-to {
+    opacity: 0;
+  }
+
+  &__slide-enter-active {
+    transition:
+      opacity 360ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
+
+    &::before {
+      animation: widgets-board-drawer-accent 520ms 70ms both;
+    }
+
+    .widgets-board__header,
+    .widgets-board__input,
+    .widgets-board__note,
+    .widgets-board__hot-tabs,
+    .widgets-board__hot,
+    .widgets-board__empty {
+      animation: widgets-board-drawer-item 460ms both;
+    }
+
+    .widgets-board__header {
+      animation-delay: 70ms;
+    }
+
+    .widgets-board__input {
+      animation-delay: 110ms;
+    }
+
+    .widgets-board__hot-tabs {
+      animation-delay: 110ms;
+    }
+
+    .widgets-board__note,
+    .widgets-board__hot,
+    .widgets-board__empty {
+      animation-delay: 150ms;
+    }
+  }
+
+  &__slide-leave-active {
+    transition:
+      opacity 150ms ease-in,
+      transform 150ms ease-in;
+  }
+
+  &__slide-enter-from,
+  &__slide-leave-to {
+    opacity: 0;
+    transform: translateX(48px) scale(0.985);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .widgets-board {
+    &__trigger,
+    &__close,
+    &__note,
+    &__hot,
+    &__fade-enter-active,
+    &__fade-leave-active,
+    &__slide-enter-active,
+    &__slide-leave-active,
+    &__slide-enter-active .widgets-board__header,
+    &__slide-enter-active .widgets-board__input,
+    &__slide-enter-active .widgets-board__note,
+    &__slide-enter-active .widgets-board__hot-tabs,
+    &__slide-enter-active .widgets-board__hot,
+    &__slide-enter-active .widgets-board__empty {
+      transition: none;
+      animation: none;
+    }
+  }
+}
+
+@keyframes widgets-board-note-flip {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    animation-timing-function: cubic-bezier(0.34, 0, 0.14, 1); /* --p2m-ease-narrative */
+  }
+
+  20% {
+    transform: translateY(1px) rotate(3deg) scale(0.92);
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); /* --p2m-ease-enter */
+  }
+
+  62% {
+    transform: translateY(-2px) rotate(0deg) scale(1.12);
+    animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); /* --p2m-ease-settle */
+  }
+
+  82% {
+    transform: translateY(-1px) rotate(0deg) scale(1.04);
+  }
+
+  100% {
+    transform: translateY(-1px) rotate(0deg) scale(1.08);
+  }
+}
+
+@keyframes widgets-board-note-corner {
+  0% {
+    opacity: 0;
+    transform: translate(-3px, 3px) rotate(-24deg) scale(0.15);
+    animation-timing-function: cubic-bezier(0.34, 0, 0.14, 1); /* --p2m-ease-narrative */
+  }
+
+  20% {
+    opacity: 0.55;
+    transform: translate(-5px, 4px) rotate(-16deg) scale(0.42);
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); /* --p2m-ease-enter */
+  }
+
+  64% {
+    opacity: 1;
+    transform: translate(1px, -1px) rotate(5deg) scale(1.16);
+    animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); /* --p2m-ease-settle */
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+}
+
+@keyframes widgets-board-note-lines {
+  0% {
+    opacity: 0;
+    transform: translateX(7px) scaleX(0.12);
+    animation-timing-function: cubic-bezier(0.34, 0, 0.14, 1); /* --p2m-ease-narrative */
+  }
+
+  20% {
+    opacity: 0.2;
+    transform: translateX(8px) scaleX(0.12);
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); /* --p2m-ease-enter */
+  }
+
+  60% {
+    opacity: 0.76;
+    transform: translateX(0) scaleX(1.08);
+    animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); /* --p2m-ease-settle */
+  }
+
+  100% {
+    opacity: 0.68;
+    transform: translateX(0) scaleX(1);
+  }
+}
+
+@keyframes widgets-board-rss-cast {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    animation-timing-function: cubic-bezier(0.34, 0, 0.14, 1); /* --p2m-ease-narrative */
+  }
+
+  20% {
+    transform: translateY(1px) rotate(-9deg) scale(0.9);
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); /* --p2m-ease-enter */
+  }
+
+  55% {
+    transform: translateY(-3px) rotate(15deg) scale(1.18);
+    animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); /* --p2m-ease-settle */
+  }
+
+  78% {
+    transform: translateY(-2px) rotate(-6deg) scale(1.08);
+  }
+
+  100% {
+    transform: translateY(-2px) rotate(0deg) scale(1.1);
+  }
+}
+
+@keyframes widgets-board-rss-ring {
+  0% {
+    opacity: 0;
+    transform: scale(0.28);
+    animation-timing-function: cubic-bezier(0.34, 0, 0.14, 1); /* --p2m-ease-narrative */
+  }
+
+  20% {
+    opacity: 0.28;
+    transform: scale(0.42);
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); /* --p2m-ease-enter */
+  }
+
+  72% {
+    opacity: 0.18;
+    transform: scale(1.18);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); /* --p2m-ease-natural */
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+
+@keyframes widgets-board-drawer-accent {
+  0% {
+    opacity: 0;
+    transform: scaleY(0);
+    animation-timing-function: cubic-bezier(0.34, 0, 0.14, 1); /* --p2m-ease-narrative */
+  }
+
+  20% {
+    opacity: 0.32;
+    transform: scaleY(0.18);
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); /* --p2m-ease-enter */
+  }
+
+  70% {
+    opacity: 0.9;
+    transform: scaleY(1.04);
+    animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); /* --p2m-ease-settle */
+  }
+
+  100% {
+    opacity: 0.82;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes widgets-board-drawer-item {
+  0% {
+    opacity: 0;
+    transform: translateX(18px) scale(0.98);
+    animation-timing-function: cubic-bezier(0.34, 0, 0.14, 1); /* --p2m-ease-narrative */
+  }
+
+  20% {
+    opacity: 0;
+    transform: translateX(22px) scale(0.97);
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); /* --p2m-ease-enter */
+  }
+
+  72% {
+    opacity: 1;
+    transform: translateX(-2px) scale(1.005);
+    animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); /* --p2m-ease-settle */
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+</style>

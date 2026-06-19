@@ -1,0 +1,72 @@
+# AGENTS.md
+
+本仓库是一个基于 Vite、Vue 3 和 TypeScript 的网页应用项目。
+请将此文件作为 AI 编码代理的快速操作指南。
+
+## 优先阅读
+
+- 项目概览与开发说明：[README.md](README.md)
+- 英文说明：[README_en.md](README_en.md)
+- 发布历史：[CHANGELOG.md](docs/CHANGELOG.md)
+- 待优化事项（可能不存在）：[TODO.md](TODO.md)
+
+## 环境与命令
+
+- 使用 Node.js 24+、TypeScript 6
+- 安装依赖：`pnpm install`
+- 启动开发：`pnpm dev`
+- 类型检查：`pnpm type-check`
+- 全量 Lint：`pnpm lint`
+- 构建：`pnpm build`
+- 预览构建：`pnpm preview:web`
+- Cloudflare D1 迁移：`pnpm cf:d1:migrate`
+- Cloudflare Worker 部署：`pnpm cf:deploy`
+
+## 架构地图
+
+- Web 入口页面：[web/index.html](web/index.html)
+- Web 启动入口：[web/src/main.ts](web/src/main.ts)
+- 应用主入口：[entrypoints/newtab/main.ts](entrypoints/newtab/main.ts)
+- 应用 UI 根组件：[entrypoints/newtab/App.vue](entrypoints/newtab/App.vue)
+- 浏览器能力降级 Shim：[web/shim/extension.ts](web/shim/extension.ts)
+- 邮件验证码本地 API：[web/server/resendAuthCode.ts](web/server/resendAuthCode.ts)
+- Cloudflare Worker API：[cloudflare/worker.ts](cloudflare/worker.ts)
+- 共享设置域：[shared/settings](shared/settings)
+- 共享同步域：[shared/sync](shared/sync)
+- 共享主题域：[shared/theme](shared/theme)
+- i18n 运行时初始化：[shared/i18n.ts](shared/i18n.ts)
+- 语言资源目录：[locales](locales)
+
+## 仓库约定
+
+- UI 组件优先使用 Vue SFC 的 `script setup` + TypeScript。
+- 优先使用 [tsconfig.app.json](tsconfig.app.json) 中已有路径别名：`@/*` 和 `@newtab/*`。
+- 变更尽量小而聚焦；除非明确要求，不做大范围重构。
+- 遵循现有 Lint 体系：[eslint.config.ts](eslint.config.ts) 与 [stylelint.config.ts](stylelint.config.ts)。
+- 不要手动编辑生成的声明文件：[types/auto-imports.d.ts](types/auto-imports.d.ts)、[types/components.d.ts](types/components.d.ts)。
+
+## 高风险区域
+
+- 设置 Schema 发生变化时，如果发生删除或更名必须同步更新迁移逻辑，添加新项不用升级配置版本。
+- 如果设置结构变化，需要同时更新以下位置：
+  - 当前版本：[shared/settings/current.ts](shared/settings/current.ts)
+  - 存储迁移注册：[shared/settings/settingsStorage.ts](shared/settings/settingsStorage.ts)
+  - 迁移实现：[shared/settings/migrate](shared/settings/migrate)
+  - 默认值：[shared/settings/default.ts](shared/settings/default.ts)
+- 启动阶段的向后兼容检查要保持稳定：[shared/settings/bootstrap.ts](shared/settings/bootstrap.ts)
+- 云端同步与账号相关 API 要保持稳定：[shared/cloud](shared/cloud)
+
+## i18n 规则
+
+- 命名空间使用要与 [shared/i18n.ts](shared/i18n.ts) 保持一致：`newtab`、`settings`、`sync`、`faq`。
+- 新增或重命名翻译键时，要同步更新 [locales](locales) 下所有语言。
+
+## 完成前校验清单
+
+- 对任意 TypeScript/Vue 逻辑改动，执行 `pnpm type-check`。
+- 执行 `pnpm lint` 做样式与静态检查。
+- 如果构建流程或部署行为变化，执行对应的 build/deploy 命令。
+
+## Git 提交说明
+
+使用 gitmoji 作为 commit message 的开头，代替 `feat:` 等描述性前缀，后面跟简短描述，必要时添加更详细的正文说明

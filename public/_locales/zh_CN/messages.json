@@ -1,0 +1,11 @@
+{
+  "action_title": {
+    "message": "添加当前页面到快速导航"
+  },
+  "extension_description": {
+    "message": "一个开源、简洁、美观且易于使用的浏览器起始页。"
+  },
+  "extension_name": {
+    "message": "Startpage"
+  }
+}

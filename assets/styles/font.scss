@@ -1,0 +1,41 @@
+@use '@/assets/styles/variables.scss' as *;
+
+// 不加 @font-face 就算写了 Segoe UI Variable XXXXX 或 Segoe UI Variable 也不会调用可变字体
+@font-face {
+  font-family: 'Segoe UI Variable';
+
+  /* 光学尺寸轴 opsz，对于 Display 字体 */
+  font-variation-settings: 'opsz' 36;
+
+  /* 指定可变字体轴的范围：weight 可以从 300 到 700 */
+  font-weight: 300 700;
+
+  src:
+    local('Segoe UI Variable Display'), local('Segoe UI Variable Text'),
+    local('Segoe UI Variable Small'), local('Segoe UI Variable');
+}
+
+html {
+  &[lang^='zh-Hans'],
+  &[lang^='zh-CN'],
+  &[lang^='zh-SG'] {
+    --el-font-family:
+      #{$font-apple}, 'HarmonyOS Sans SC', #{$font-common}, #{$font-sc}, #{$font-fallback};
+  }
+
+  /* 繁体中文 港澳 */
+  &[lang^='zh-Hant-HK'],
+  &[lang^='zh-HK'],
+  &[lang^='zh-Hant-MO'],
+  &[lang^='zh-MO'] {
+    --el-font-family:
+      #{$font-apple}, 'HarmonyOS Sans TC', #{$font-common}, #{$font-hk}, #{$font-fallback};
+  }
+
+  /* 台湾正体 */
+  &[lang^='zh-Hant']:not([lang^='zh-Hant-HK'], [lang^='zh-Hant-MO']),
+  &[lang^='zh-TW'] {
+    --el-font-family:
+      #{$font-apple}, 'HarmonyOS Sans TC', #{$font-common}, #{$font-tc}, #{$font-fallback};
+  }
+}

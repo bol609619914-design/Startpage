@@ -1,0 +1,391 @@
+{
+  "background": {
+    "alwaysFresh": "永遠都有新鮮感",
+    "bingFrom": "影像來源：Bing",
+    "blur": "模糊強度",
+    "button": {
+      "bathe": {
+        "moon": "曬月亮",
+        "sun": "曬太陽"
+      }
+    },
+    "cache": {
+      "disabledTip": "僅在壁紙類型為「線上圖片」時可開啟（Bing 壁紙預設已快取）",
+      "duration": "快取有效期",
+      "label": "線上壁紙快取",
+      "nextStartup": "將於下次啟動時生效",
+      "noExpires": "快取永不過期"
+    },
+    "change": "更改背景",
+    "chooseImageOrVideo": "選擇你喜歡的圖片或影片作為壁紙",
+    "custom": "自訂",
+    "fasterBgAnim": "啟動時更快地顯示背景",
+    "mask": {
+      "color": "遮罩顏色",
+      "enable": "啟用遮罩"
+    },
+    "myZoneMyRule": "做出你的樣子",
+    "onlineTips": {
+      "a": "按下 Enter 鍵或當輸入框失去焦點時會提交",
+      "b": "圖片的快取策略取決於瀏覽器，離線時可能無法載入圖片",
+      "c": "載入圖片前可能會短暫出現白畫面，時間長短取決於你的網路速度",
+      "d": "請確認使用的圖片 API 是否允許跨域請求，否則將無法載入圖片"
+    },
+    "parallax": "壁紙視差效果",
+    "pauseWhenBlur": "分頁失去焦點時暫停影片背景",
+    "permission": {
+      "allowAll": "允許所有網址",
+      "allowCurrent": "僅允許這個API網址",
+      "deny": "拒絕",
+      "request": {
+        "faviconCacheMessage": "為了啟用圖示快取，擴充功能需要「訪問所有網址」權限。",
+        "message": "為了獲取線上圖片，擴充功能需要請求相應的訪問權限：",
+        "monetColorMessage": "為了啟用動態主題色（莫內取色），擴充功能需要「訪問所有網址」權限。",
+        "subA": {
+          "content": "需要「訪問這個API網址」",
+          "label": "普通模式："
+        },
+        "subB": {
+          "content": "需要「訪問所有網站」",
+          "label": "動態主題色 / 壁紙快取："
+        },
+        "title": "權限請求",
+        "wallpaperCacheMessage": "為了啟用線上壁紙快取，擴充功能需要「訪問所有網址」權限。"
+      }
+    },
+    "preferenceTitle": "壁紙偏好",
+    "sunMoonSaying": "太陽出來我曬太陽，月亮出來我曬月亮",
+    "tip": "如果深色模式背景沒有選擇的話會繼續使用淺色模式的圖片/影片噢",
+    "title": "背景",
+    "today": "今日",
+    "type": {
+      "local": "本機圖片/影片",
+      "online": "線上圖片"
+    },
+    "video": {
+      "blurTip": "開啟此開關可緩解同時開啟多個新分頁或多個視窗同時顯示時的效能佔用",
+      "warning": "使用影片作為背景會大量消耗 GPU 資源，建議避免同時開啟多個新分頁。建議適當停用動畫、模糊、透明效果以降低效能消耗"
+    },
+    "vignette": "暗角效果",
+    "warning": {
+      "cacheDisabled": "由於未授予「訪問所有網站」權限，無法安全地快取線上壁紙，因此已停用「線上壁紙快取」。",
+      "fileIsNotImage": "所選檔案不是圖片！",
+      "monetColorDisabled": "莫內取色已關閉",
+      "monetDisabled": "由於未授予「訪問所有網站」權限，動態主題色（莫內取色）已被關閉",
+      "notGranted": "未授權，無法載入背景圖片",
+      "title": "警告",
+      "tooLarge": {
+        "message": "檔案過大（{{size}}），可能會影響效能或佔用較多空間，是否繼續？",
+        "title": "大型檔案"
+      },
+      "unknownSource": "使用來源不明的圖片作為背景可能會使裝置遭到攻擊，是否繼續？"
+    },
+    "youLikeFine": "你喜歡就好~"
+  },
+  "bookmark": {
+    "defaultSort": {
+      "desc": "重新整理頁面後生效",
+      "title": "預設排序方式"
+    },
+    "direction": {
+      "ltr": "從左到右",
+      "rtl": "從右到左",
+      "title": "打開方向"
+    },
+    "rightClickToOpen": "右鍵背景打開",
+    "showBtn": "顯示右下角快捷入口",
+    "title": "書籤欄"
+  },
+  "clock": {
+    "blink": "閃爍時間分隔符",
+    "blinkingTip": "關閉可減輕持續性的 GPU 使用",
+    "colorful": "多彩時鐘",
+    "hour12": "使用 12 小時制",
+    "invertColor": {
+      "dark": "【時鐘】深色模式下使用深色文字",
+      "light": "【時鐘】淺色模式下使用深色文字"
+    },
+    "meridiem": {
+      "followSize": "「上午／下午」大字顯示",
+      "show": "顯示「上午 / 下午」"
+    },
+    "newStyle": "新樣式",
+    "newStyleDesc": "若啟用將同時啟用「顯示『上午／下午』」以及「顯示秒數」且無法停用",
+    "secondsTip": "開啟會增加效能消耗",
+    "shadow": "顯示陰影",
+    "showDate": "顯示日期",
+    "showLunar": "顯示農曆",
+    "showSeconds": "顯示秒鐘",
+    "size": {
+      "title": "時鐘大小"
+    },
+    "title": "時鐘",
+    "weight": {
+      "black": "最粗（900）",
+      "bold": "粗體（600）",
+      "dateTitle": "日期字重",
+      "extraBold": "很粗（700）",
+      "heavy": "非常粗（800）",
+      "medium": "稍粗（500）",
+      "normal": "標準（400）",
+      "title": "時鐘字重"
+    }
+  },
+  "common": {
+    "copyLink": "複製連結網址",
+    "hour": "小時",
+    "openInNewTab": "在新分頁中開啟",
+    "openInNewWindow": "在新視窗中開啟",
+    "touchDeviceDisabledNote": "觸控裝置已停用此項。"
+  },
+  "dock": {
+    "actionBtnNote": "開啟 Dock 後，功能按鈕只能放在頂部（可在「佈局」中選擇左/右）",
+    "launchpad": {
+      "show": "在 Dock 中啟用啟動台",
+      "title": "啟動台"
+    },
+    "limitCount": "限制最大數量",
+    "maxCount": "最大數量",
+    "title": "Dock"
+  },
+  "layout": {
+    "actionBtn": {
+      "bottomLeft": "左下",
+      "bottomRight": "右下",
+      "dockNote": "開啟 Dock 後功能按鈕只能放在頂部",
+      "label": "功能按鈕位置",
+      "topLeft": "左上",
+      "topRight": "右上"
+    },
+    "mainPosition": {
+      "center": "居中",
+      "dvh": "距頂部（%）",
+      "dvhValue": "距頂部距離（dvh）",
+      "label": "主區域位置",
+      "px": "距頂部（px）",
+      "pxValue": "距頂部距離（px）",
+      "quickLinksScrollNote": "快速連結使用捲動時不能使用置中定位。"
+    },
+    "title": "佈局"
+  },
+  "other": {
+    "faviconCache": {
+      "description": "開啟後將圖示快取至本地，加快載入速度；需要「存取所有網站」權限",
+      "label": "圖示快取",
+      "permissionDenied": "未獲得「存取所有網站」權限，圖示快取已保持關閉"
+    },
+    "importExport": {
+      "backup": "備份擴充功能設定",
+      "export": "匯出",
+      "import": "匯入",
+      "importFailed": "匯入失敗：{{reason}}",
+      "importSuccess": "匯入成功",
+      "invalidFileFormat": "檔案格式不正確",
+      "invalidJSON": "無效的 JSON 格式",
+      "noFileSelected": "未選擇檔案",
+      "unknownError": "未知錯誤",
+      "versionMismatch": "檔案內設定版本與目前擴充功能設定版本不符",
+      "warningDialog": {
+        "content": "匯入會覆蓋你目前的資料，請謹慎使用此功能，是否繼續？",
+        "no": "不要啊",
+        "title": "匯入檔案將會覆蓋現有資料，是否繼續？",
+        "yes": "繼續"
+      }
+    },
+    "language": "語言",
+    "purge": {
+      "btn": "清除",
+      "confirm": {
+        "data": {
+          "message": "此操作將會重置本擴充功能之設定、已忽略的最常造訪網站、已釘選或收藏的網站、已選擇的背景圖片等。",
+          "purging": "正在清除擴充功能資料...",
+          "title": "確定要清除所有資料嗎？"
+        },
+        "icon": {
+          "message": "此操作將會刪除所有已快取的網站圖示。",
+          "purging": "正在清除圖示快取...",
+          "title": "確定要清除圖示快取？"
+        },
+        "wallpaper": {
+          "message": "此操作將會刪除已選擇的背景圖片/影片。",
+          "purging": "正在清除壁紙快取...",
+          "title": "確定要清除壁紙快取？"
+        }
+      },
+      "data": "清除本擴充功能的資料",
+      "icon": "清除圖示快取",
+      "wallpaper": "清除壁紙快取"
+    },
+    "sync": "雲端同步（實驗功能）",
+    "syncWarning": "雲端同步可能會覆蓋本機設定，且無法同步以下項目：背景圖片、最常造訪網站、深色模式狀態等。不支援同步的項目後方會顯示如右側所示的標示：",
+    "title": "其他"
+  },
+  "perf": {
+    "actionBtns": {
+      "blur": "右下按鈕模糊",
+      "transparent": "右下按鈕透明"
+    },
+    "bgSwitchAnim": "壁紙切換動畫",
+    "bgSwitchAnimTip": "關閉後切換壁紙時將不再有淡入淡出動畫，能微弱提升切換速度。同時啟動時的壁紙動畫也會被停用",
+    "bookmark": {
+      "blur": "書籤欄背景模糊",
+      "transparent": "書籤欄背景透明"
+    },
+    "dialog": {
+      "animation": "對話框動畫",
+      "blur": "對話框背景模糊",
+      "transparent": "對話框背景透明"
+    },
+    "dock": {
+      "scale": "Dock圖示縮放動畫"
+    },
+    "focus": {
+      "blur": "點擊搜尋框時背景模糊",
+      "scale": "點擊搜尋框時縮放背景"
+    },
+    "searchBar": {
+      "blur": "搜尋框模糊",
+      "transparent": "搜尋框透明"
+    },
+    "title": "效能",
+    "toggleAll": {
+      "animation": "動畫",
+      "blur": "模糊效果",
+      "disable": "一鍵停用所有",
+      "enable": "一鍵啟用所有",
+      "transparent": "透明效果"
+    },
+    "yiyan": {
+      "blur": "一言背景模糊",
+      "ripple": "一言水波紋動畫",
+      "transparent": "一言背景透明"
+    },
+    "quickLinks": {
+      "blur": "快速連結圖示模糊",
+      "transparent": "快速連結圖示透明"
+    }
+  },
+  "search": {
+    "alwaysExpandSearchBar": "一直展開搜尋框",
+    "alwaysShowIcon": "始終顯示搜尋引擎圖示",
+    "border": "顯示搜尋框邊框",
+    "clickToChange": "點擊更改",
+    "defaultSearchEngine": "預設搜尋引擎",
+    "expandWidth": "展開後寬度",
+    "launchAnim": "啟動時搜尋框展開動畫",
+    "placeholder": "搜尋框占位文字",
+    "recordSearchHistory": "記錄搜尋歷史",
+    "searchSuggestionProvider": "搜尋建議 API",
+    "shadow": "顯示搜尋框陰影",
+    "tip": "想要打開新分頁就讓搜尋框取得焦點？請查看頁面右下角按鈕菜單的「幫助和反饋」",
+    "title": "搜尋"
+  },
+  "theme": {
+    "color": {
+      "acgn": {
+        "aveMujica": "Ave Mujica",
+        "bocchi": "後藤ひとり",
+        "kessoku": "結束バンド",
+        "luo": "洛天依",
+        "miku": "初音ミク",
+        "mygo": "MyGO!!!!!",
+        "togeari": "TOGENASHI TOGEARI"
+      },
+      "classic": {
+        "antBlue": "Ant 蓝",
+        "bellflower": "紺桔梗",
+        "crimson": "深緋",
+        "ink": "墨",
+        "lapisBlue": "瑠璃",
+        "ochre": "赭",
+        "orangeRed": "黄赤",
+        "teal": "納戸",
+        "yamabuki": "山吹",
+        "yellowGreen": "萌黄"
+      }
+    },
+    "colorful": {
+      "desc": "將主題色套用至更多介面元素",
+      "label": "全域色彩"
+    },
+    "idleHide": "不活動時淡出頁面元素",
+    "mode": {
+      "alwaysOff": "始終關閉",
+      "alwaysOn": "始終開啟",
+      "dark": "深色模式",
+      "light": "淺色模式",
+      "system": "跟隨系統"
+    },
+    "monet": {
+      "askEnableCache": {
+        "message": "要使用動態主題色，需要啟用線上壁紙快取。啟用快取將儲存來自這個網址的圖片。是否啟用？",
+        "title": "啟用壁紙快取？"
+      },
+      "desc": "源自 Material Design 3，從背景中提取主題色。僅支援圖片背景，搭配「全域色彩」可獲得最佳視覺效果。",
+      "label": "動態主題色（莫內取色）"
+    },
+    "primaryColor": "主題色",
+    "title": "主題"
+  },
+  "title": "設定",
+  "yiyan": {
+    "alwaysShow": "總是顯示",
+    "customLinesLabel": "自定義內容",
+    "customLinesNote": "每一行為一則，行內使用「\\n」表示換行",
+    "customLinesPlaceholder": "每行一條，行內使用 \\n 表示換行",
+    "description": "",
+    "invertColor": {
+      "dark": "【一言】深色模式下使用深色文字",
+      "light": "【一言】淺色模式下使用深色文字"
+    },
+    "normalyShowTip": "關閉時僅在搜尋框聚焦時顯示",
+    "provider": "一言來源",
+    "providers": {
+      "custom": {
+        "name": "自定義"
+      },
+      "hitokoto": {
+        "name": "一言（Hitokoto）",
+        "note": "請注意，Hitokoto.cn 的 QPS（每秒請求數）非常嚴格，本擴充功能已做快取，但短時間內來自不同站點請求仍會導致你的 IP 短時間被 Ban"
+      },
+      "jinrishici": {
+        "name": "今日詩詞"
+      }
+    },
+    "shadow": "顯示文字陰影",
+    "title": "一言"
+  },
+  "quickLinks": {
+    "border": "顯示圖示邊框",
+    "iconCacheTip": "Tip：建議開啟「設定-其他-圖示快取」以嘗試取得更高清晰度的圖示。",
+    "iconRatio": "圖示填充比例",
+    "iconSize": "圖示大小",
+    "grouping": "啟用分組",
+    "groupingDisableConfirm": "關閉分組會合併所有快速連結分組，並移除重複 URL。不同分組中的重複連結將無法保留。",
+    "groupingTip": "雙擊快速連結區或啟動台中的分組名稱即可重新命名。",
+    "useScroll": "使用捲動",
+    "useScrollTouchTip": "建議行動裝置開啟此開關，以獲得更好的瀏覽體驗。",
+    "marginTop": "區域上邊距",
+    "maxColumns": "最大欄數",
+    "maxItemsTipForChrome": "最常造訪最多只有 10 個喔～",
+    "maxRows": "最大列數",
+    "paging": "啟用翻頁",
+    "pagingLoop": "翻頁循環",
+    "pinnedIcon": "顯示釘選圖示",
+    "restoreDefault": "還原隱藏的連結",
+    "restoreDefaultTitle": "確定要還原為預設快速連結嗎？",
+    "shadow": "顯示圖示陰影",
+    "showOnSearchFocus": "搜尋框聚焦時顯示",
+    "showTitle": "顯示標題",
+    "spacing": {
+      "iconTitleGap": "圖示與標題間距",
+      "itemGapX": "連結左右間距",
+      "itemGapY": "連結上下間距"
+    },
+    "tip": "提示：可以拖曳設定視窗以觀察快速連結區域的變化。",
+    "title": "快速連結",
+    "titleExtraWidth": "標題擴展寬度",
+    "titleWhiteInLight": "【快速連結】淺色模式下使用白色文字",
+    "topSites": "顯示最常造訪"
+  }
+}

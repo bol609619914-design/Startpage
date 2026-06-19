@@ -1,0 +1,237 @@
+{
+  "about": {
+    "yiyanProvider": "一言API由 {api} 提供"
+  },
+  "account": {
+    "code": {
+      "devDescription": "本地调试验证码：{{code}}",
+      "devTitle": "验证码已生成",
+      "label": "验证码",
+      "placeholder": "输入 6 位验证码",
+      "send": "发送验证码",
+      "sent": "验证码已发送"
+    },
+    "email": "邮箱",
+    "emailPlaceholder": "you@example.com",
+    "errors": {
+      "accountExists": "这个邮箱已经注册过了",
+      "accountNotFound": "没有找到这个账号",
+      "cloudRequestFailed": "云端服务请求失败",
+      "cloudUnavailable": "云端服务还没配置好",
+      "invalidCode": "验证码不正确或已过期",
+      "invalidCredentials": "邮箱或密码不正确",
+      "invalidEmail": "请输入有效邮箱",
+      "inviteInvalid": "推荐码不存在或不可用",
+      "inviteRequired": "请输入推荐码",
+      "inviteUsed": "推荐码已经被使用",
+      "passwordNotSet": "这个账号还没设置云端密码，请先用找回重设一次",
+      "emailDomainUnverified": "邮件发件域名还未验证，请先在 Resend 配置域名",
+      "emailRecipientNotAllowed": "当前邮件服务处于测试模式，只能发送到 Resend 账号邮箱",
+      "emailSendFailed": "邮件发送失败，请稍后重试",
+      "emailUnavailable": "邮件服务还没配置好",
+      "unknown": "操作失败，请稍后重试",
+      "weakPassword": "密码至少需要 6 位"
+    },
+    "invite": {
+      "label": "推荐码",
+      "placeholder": "输入朋友给你的推荐码"
+    },
+    "login": {
+      "submit": "登录",
+      "tab": "登录",
+      "title": "登录账号"
+    },
+    "logout": "退出登录",
+    "newPassword": "新密码",
+    "open": "登录 / 注册",
+    "password": "密码",
+    "passwordPlaceholder": "至少 6 位",
+    "register": {
+      "submit": "创建账号",
+      "tab": "注册",
+      "title": "创建账号"
+    },
+    "reset": {
+      "submit": "重置密码",
+      "tab": "找回",
+      "title": "找回密码"
+    },
+    "signedIn": "已登录",
+    "signedOut": "已退出登录"
+  },
+  "bookmark": {
+    "404": "什么都没找到",
+    "addToQuickLinks": "添加到快速导航",
+    "added": "已添加到快速导航",
+    "collapse": {
+      "all": "折叠本层全部",
+      "other": "折叠同级其他项"
+    },
+    "delete": {
+      "confirm": "你确定要删除「{{name}}」吗？",
+      "confirmFolder": "「{{name}}」是一个目录，删除他会把其中所有书签一起删除，确定吗？",
+      "success": "已删除「 {{title}}」"
+    },
+    "expandHint": "请展开侧边栏以查看书签",
+    "moveError": "书签移动失败",
+    "sortBy": "排序方式",
+    "sortMode": {
+      "createdAsc": "由新到旧",
+      "createdDesc": "由旧到新",
+      "nameAsc": "名称由A到Z",
+      "nameDesc": "名称由Z到A",
+      "origin": "原始顺序"
+    },
+    "title": "书签",
+    "tooSmall": "侧边栏宽度过小"
+  },
+  "bootstrap": {
+    "invalidVer": {
+      "bak": "你还可以点击下方按钮以下载旧版本的配置文件备份（不支持导入到当前版本）。",
+      "btn": "清除并刷新",
+      "msg": "非常抱歉，检测到不受支持的历史设置版本。为保证扩展功能正常运行，请清除扩展数据并刷新。",
+      "title": "不支持的配置版本"
+    }
+  },
+  "changelog": {
+    "hideMajor": "不显示大版本更新日志",
+    "newVersionMsg": "你的起始页更新啦~",
+    "otherVersions": {
+      "description": "仅包含5个版本的更新日志，剩余内容请点击下方链接跳转查看：",
+      "linkEn": "English",
+      "linkZhCN": "中文（简体）",
+      "title": "其他版本？"
+    },
+    "title": "更新日志"
+  },
+  "common": {
+    "cancel": "取消",
+    "confirm": "好",
+    "delete": "删除",
+    "edit": "编辑",
+    "enable": "启用",
+    "icon": "图标（可选）",
+    "name": "名称",
+    "no": "算了",
+    "save": "保存",
+    "tooLargeImageConfirm": "图片较大（{{size}}），可能会影响性能和响应速度，是否继续使用？",
+    "undo": "撤销",
+    "url": "地址",
+    "warning": "警告"
+  },
+  "customSearchEngine": {
+    "add": "添加自定义搜索引擎",
+    "addDialog": {
+      "invalidUrlError": "URL 无效或不包含 %s 占位符，请重新输入~",
+      "nameRequiredError": "名称不能为空~",
+      "urlHelp": "URL 必须包含 %s 作为搜索关键词占位符"
+    },
+    "deleteConfirm": "确定要删除搜索引擎「{{name}}」吗？",
+    "edit": "编辑自定义搜索引擎",
+    "title": "自定义搜索引擎",
+    "fetchingFavicon": "正在后台获取图标..."
+  },
+  "dock": {
+    "launchpad": {
+      "add": "添加",
+      "empty": "无结果",
+      "search": "搜索...",
+      "title": "启动台"
+    }
+  },
+  "menu": {
+    "about": "关于",
+    "backgroundPreference": "背景偏好设置",
+    "help": "帮助和反馈",
+    "searchEnginePreference": "搜索引擎偏好",
+    "sponsor": "支持我们"
+  },
+  "notification": {
+    "bing": {
+      "message": "请检查开发者工具中的控制台提示。",
+      "title": "获取 Bing 壁纸失败"
+    },
+    "faviconCacheHint": {
+      "message": "可在「其他」设置中开启图标缓存，获得更快的图标加载速度",
+      "title": "提示：图标缓存未开启"
+    },
+    "wallpaperCache": {
+      "message": "无法缓存在线壁纸：${error}",
+      "title": "缓存在线壁纸失败"
+    },
+    "welcome": {
+      "message": "欢迎使用 Startpage！你可以在右下角的设置中自定义起始页。",
+      "title": "欢迎使用 Startpage"
+    }
+  },
+  "search": {
+    "engineMenu": {
+      "current": "当前",
+      "tipPrefix": "Tip：按下",
+      "tipSuffix": "切换搜索引擎"
+    },
+    "engines": {
+      "baidu": "百度",
+      "bing": "必应",
+      "duckduckgo": "DuckDuckGo",
+      "google": "Google",
+      "yandex": "Yandex"
+    },
+    "placeholder": "搜索",
+    "purgeSearchHistory": "清除搜索历史",
+    "searchEngineNotFound": "未找到搜索引擎"
+  },
+  "sponsor": "Startpage 是一个面向个人主页和新标签页体验的网页应用。如果你有想法或建议，欢迎通过 GitHub Issues 反馈。谢谢你的支持！",
+  "time": {
+    "afternoon": "下午",
+    "dawn": "凌晨",
+    "dusk": "傍晚",
+    "evening": "晚上",
+    "lateNight": "深夜",
+    "morning": "早上",
+    "noon": "中午"
+  },
+  "title": "Startpage",
+  "yiyan": {
+    "copied": "已复制到剪贴板"
+  },
+  "quickLinks": {
+    "addDialog": {
+      "extensionIconTip": "添加后会保存到你的快速导航。",
+      "invalidUrlError": "无效的地址，请重新输入~",
+      "uploadFaviconAlert": "没有上传图标时建议打开「设置-其他-图标缓存」以自动获取图标"
+    },
+    "addLink": "添加链接",
+    "bookmark": {
+      "add": "收藏到书签",
+      "existing": "该书签已存在",
+      "success": "已收藏到「{{folder}}」"
+    },
+    "editLink": "编辑链接",
+    "groups": {
+      "default": "默认",
+      "defaultDeleteBlocked": "默认分组不可删除",
+      "deleteConfirm": "确定要删除分组「{{name}}」及其中的所有链接吗？",
+      "moveTo": "移动到分组",
+      "selectAddTarget": "选择添加到哪个分组",
+      "selectMoveTarget": "选择移动到哪个分组",
+      "selectPinTarget": "选择保存到哪个分组",
+      "selectTitle": "选择分组",
+      "topSites": "最常访问",
+      "untitled": "分组 {{index}}"
+    },
+    "hide": "隐藏",
+    "moveError": "移动失败",
+    "moveLeft": "左移",
+    "moveRight": "右移",
+    "hideTopMessage": {
+      "content": "已隐藏该最常访问网站",
+      "restoreDefault": "恢复默认",
+      "restoreSuccess": "已恢复默认最常访问网站"
+    },
+    "pin": "置顶",
+    "unpin": "取消置顶",
+    "unpinMessage": "已取消置顶该链接",
+    "fetchingFavicon": "正在后台获取图标..."
+  }
+}

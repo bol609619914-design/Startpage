@@ -1,0 +1,112 @@
+import type { DrawerDirection, OldBgType } from '@/shared/enums'
+
+import type { YiyanProviderKey } from '@newtab/shared/yiyan'
+
+import type { bingBackground, localBackground } from './type'
+
+export interface SettingsSchemaV7 {
+  primaryColor: string
+  colorfulMode: boolean
+  monetColor: boolean
+  time: {
+    enabled: boolean
+    isMeridiem: boolean
+    showMeridiem: boolean
+    showDate: boolean
+    showLunar: boolean
+    showSeconds: boolean
+    small: boolean
+    enableShadow: boolean
+    blinkingColon: boolean
+    invertColor: {
+      light: boolean
+      night: boolean
+    }
+  }
+  search: {
+    enabled: boolean
+    alwaysExpandSearchBar: boolean
+    alwaysShowIcon: boolean
+    selectedSearchSuggestionAPI: keyof typeof import('@newtab/shared/search').searchSuggestAPIs
+    selectedSearchEngine: string
+    searchInNewTab: boolean
+    recordSearchHistory: boolean
+    enableShadow: boolean
+    placeholder: string
+    launchAnim: boolean
+  }
+  background: {
+    bgType: OldBgType
+    enableVignetting: boolean
+    blurIntensity: number
+    bgMaskOpacity: number
+    lightMaskColor: string
+    nightMaskColor: string
+    onlineUrl: string
+    pauseWhenBlur: boolean // 视频壁纸
+    fasterBgAnim: boolean
+  }
+  localBackground: localBackground
+  localDarkBackground: localBackground
+  bingBackground: bingBackground
+  shortcut: {
+    enabled: boolean
+    enableTopSites: boolean
+    enableAreaShadow: boolean
+    enableShadow: boolean
+    disablePaging: boolean
+    showOnSearchFocus: boolean
+    rows: number
+    columns: number
+    itemMarginH: number
+    itemMarginV: number
+    showShortcutTitle: boolean
+    showPinnedIcon: boolean
+    showShortcutContainerBg: boolean
+    iconSize: number
+    iconRatio: number
+    whiteTextInLightMode: boolean
+    marginTop: number
+    openInNewTab: boolean
+  }
+  sync: {
+    enabled: boolean
+  }
+  yiyan: {
+    enabled: boolean
+    alwaysShow: boolean
+    provider: YiyanProviderKey
+    enableShadow: boolean
+    invertColor: {
+      light: boolean
+      night: boolean
+    }
+  }
+  perf: {
+    disableBookmarkTransparent: boolean
+    disableBookmarkBlur: boolean
+    disableDialogTransparent: boolean
+    disableDialogBlur: boolean
+    disableDialogAnimation: boolean
+    disableFocusScale: boolean
+    disableFocusBlur: boolean
+    disableShortcutTransparent: boolean
+    disableShortcutBlur: boolean
+    disableSearchBarTransparent: boolean
+    disableSearchBarBlur: boolean
+    disableYiyanTransparent: boolean
+    disableYiyanBlur: boolean
+    disableSettingsBtnBlur: boolean
+    disableSettingsBtnTransparent: boolean
+    disableBgSwitchAnim: boolean
+  }
+  bookmarkSidebar: {
+    direction: DrawerDirection
+    rightClickToOpen: boolean
+    hideBtn: boolean
+  }
+  hideMajorChangelog: boolean
+  readChangeLog: boolean
+  pluginVersion: string
+  version: 7
+}

@@ -1,0 +1,141 @@
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.clock {
+  color: var(--el-fill-color-blank);
+  text-align: center;
+  transition:
+    font-size 0.25s cubic-bezier(0.5, 0, 0.5, 2),
+    transform 0.25s cubic-bezier(0.5, 0, 0.5, 2),
+    text-shadow var(--el-transition-duration-fast) ease,
+    color var(--el-transition-duration-fast) ease;
+  animation: delayedFadeIn 0.25s;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &__time-container {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    margin-bottom: 5px;
+    font-size: 50px;
+    font-feature-settings: 'tnum';
+    font-variant-numeric: tabular-nums;
+    transition:
+      font-size var(--el-transition-duration) cubic-bezier(0.5, 0, 0.5, 1.8),
+      font-weight var(--el-transition-duration) ease;
+
+    span {
+      line-height: 1em;
+    }
+
+    &.clock__new {
+      gap: 10px;
+      align-items: center;
+
+      .clock__new-container {
+        display: grid;
+        flex-direction: column;
+        grid-template-areas:
+          '.'
+          'meridiem';
+        grid-template-rows: 1fr 1fr;
+        gap: 3px;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+      }
+    }
+
+    .clock__time {
+      & .colorful {
+        color: var(--el-color-primary-light-5);
+
+        html.dark & {
+          color: var(--el-color-primary-light-3);
+        }
+      }
+    }
+
+    .clock__meridiem {
+      margin-right: 5px;
+      line-height: 1em;
+      transition: font-size var(--el-transition-duration) cubic-bezier(0.5, 0, 0.5, 1.8);
+
+      &-small {
+        font-size: 36px;
+      }
+    }
+  }
+
+  &__colon.clock__colon--blinking {
+    animation: twinkle 2s ease infinite;
+    will-change: opacity;
+  }
+
+  &__date {
+    margin-bottom: 5px;
+    transition: font-weight var(--el-transition-duration) ease;
+  }
+
+  &--shadow {
+    .clock__time-container {
+      text-shadow:
+        0 6px 13px color-mix(in oklch, var(--el-color-black), transparent 80%),
+        1px 1px 2px color-mix(in oklch, var(--el-color-black), transparent 90%);
+
+      html.dark & {
+        text-shadow:
+          0 1px 8px color-mix(in oklch, var(--el-color-black), transparent 50%),
+          1px 1px 2px color-mix(in oklch, var(--el-color-black), transparent 90%);
+      }
+    }
+
+    .clock__date {
+      text-shadow:
+        0 3px 6px color-mix(in oklch, var(--el-color-black), transparent 70%),
+        1px 1px 2px color-mix(in oklch, var(--el-color-black), transparent 90%);
+
+      html.dark & {
+        text-shadow:
+          0 1px 4px color-mix(in oklch, var(--el-color-black), transparent 50%),
+          1px 1px 2px color-mix(in oklch, var(--el-color-black), transparent 90%);
+      }
+    }
+  }
+
+  &--invert.clock--light,
+  html.dark & {
+    color: var(--el-text-color-primary);
+  }
+
+  html.dark &.clock--invert.clock--night {
+    color: var(--el-fill-color-extra-light);
+  }
+}
+
+@media (width <= 600px) {
+  .clock {
+    &__time-container {
+      font-size: 40px;
+
+      &-medium {
+        font-size: 40px;
+      }
+    }
+
+    &__date {
+      font-size: var(--el-font-size-small);
+    }
+  }
+}

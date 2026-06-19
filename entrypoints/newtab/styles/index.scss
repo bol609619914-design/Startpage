@@ -1,0 +1,113 @@
+@use './element.scss';
+@use './clock.scss';
+@use './settings.scss';
+@use './search.scss';
+@use './color.scss';
+@use './mixins/acrylic.scss' as acrylic;
+@use './transitions.scss';
+@use './action-btn.scss';
+@use './quick-links.scss';
+@use '@/assets/styles/font.scss';
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: var(--el-bg-color-page);
+  text-rendering: optimizeLegibility;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-autospace: normal;
+}
+
+:root {
+  color-scheme: light dark;
+
+  /* 旧浏览器 fallback */
+  --app-vh: 100vh;
+  --app-vw: 100vw;
+}
+
+/* 支持新视口单位的浏览器覆盖 */
+@supports (height: 100dvh) {
+  :root {
+    --app-vh: 100dvh;
+    --app-vw: 100dvw;
+  }
+}
+
+html,
+body {
+  position: relative;
+  width: var(--app-vw);
+  height: var(--app-vh);
+  margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none; // 禁止滚动消失工具栏
+  font-family: var(--el-font-family);
+  font-size: var(--el-font-size-base);
+  color: var(--el-text-color-primary);
+  -webkit-overflow-scrolling: touch; // iOS 让滚动别走主线程
+  text-underline-offset: 0.25em;
+}
+
+html.colorful {
+  .el-message-box,
+  .base-dialog {
+    background-color: var(--el-color-primary-light-9);
+  }
+}
+
+html.dialog-transparent {
+  .el-message-box,
+  .base-dialog--opacity {
+    background-color: var(--le-bg-color-overlay-opacity-15);
+  }
+}
+
+html.dialog-acrylic {
+  .el-message-box,
+  .base-dialog--blur {
+    @include acrylic.acrylic;
+  }
+}
+
+.app {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left); // 移动端安全区
+  transition: opacity var(--el-transition-duration) ease-in-out;
+
+  &--quick-links-scroll {
+    justify-content: flex-start;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 96px);
+    overflow: hidden auto;
+    overscroll-behavior-y: contain;
+  }
+}
+
+.noselect {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  -khtml-user-select: none;
+  user-select: none;
+}
+
+@keyframes delayedFadeIn {
+  0%,
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}

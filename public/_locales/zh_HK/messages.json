@@ -1,0 +1,11 @@
+{
+  "action_title": {
+    "message": "新增目前頁面至快速連結"
+  },
+  "extension_description": {
+    "message": "一個開源、簡潔、美觀又易用的瀏覽器起始頁。"
+  },
+  "extension_name": {
+    "message": "Startpage"
+  }
+}

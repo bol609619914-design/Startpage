@@ -1,0 +1,210 @@
+@use './mixins/acrylic.scss' as acrylic;
+
+.action-btn-container {
+  position: fixed;
+  right: 30px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: row-reverse;
+  padding: 5px;
+  color: var(--el-text-color-secondary);
+  background-color: var(--el-bg-color-overlay);
+  border-radius: 100px;
+  transition: var(--el-transition-duration-fast) ease-in-out;
+
+  &--top-right {
+    inset: 20px 30px auto auto;
+  }
+
+  &--top-left {
+    inset: 20px auto auto 30px;
+  }
+
+  &--bottom-left {
+    inset: auto auto 20px 30px;
+  }
+
+  /* bottom-right is the default — no modifier needed */
+  html.colorful &:not(.action-btn-container--tran) {
+    background-color: var(--el-color-primary-light-9);
+  }
+
+  &:hover,
+  &:focus-within {
+    box-shadow: var(--el-box-shadow-lighter);
+  }
+
+  &--tran {
+    color: rgb(from var(--el-text-color-secondary) r g b / 30%);
+    background-color: var(--le-bg-color-overlay-opacity-90);
+
+    &:hover,
+    &:focus-within {
+      color: var(--el-text-color-regular);
+      background-color: var(--le-bg-color-overlay-opacity-60);
+    }
+
+    &.action-btn-container--blur {
+      @include acrylic.acrylic(5px, 1.4, 1);
+    }
+  }
+
+  .el-dropdown {
+    color: inherit;
+  }
+}
+
+.action-btn {
+  position: relative;
+  width: 33px;
+  height: 33px;
+  padding: 4px;
+  font-size: 25px;
+  line-height: 1em;
+  cursor: pointer;
+  transition: var(--el-transition-duration-fast) ease-in-out;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--el-color-primary);
+
+    svg {
+      filter: drop-shadow(0 0 3px rgb(255 255 255 / 60%));
+    }
+  }
+
+  &:focus-visible {
+    outline: none;
+
+    &::after {
+      position: absolute;
+      inset: -2px;
+      pointer-events: none;
+      content: '';
+      border: 2px solid var(--el-color-primary);
+      border-radius: 50%;
+    }
+  }
+
+  .el-icon {
+    transition: transform var(--el-transition-duration) ease-in-out;
+  }
+}
+
+.setting-btn {
+  &:hover,
+  &:focus-visible {
+    .el-icon {
+      transform: none;
+    }
+  }
+
+  .el-badge {
+    display: block;
+  }
+
+  &__popper.el-popper {
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--el-border-color) 58%, transparent);
+
+    .el-dropdown-menu {
+      padding: 8px;
+      background-color: transparent;
+    }
+
+    .el-dropdown-menu__item {
+      display: flex;
+      align-items: center;
+      min-width: 150px;
+      height: 36px;
+      padding: 0 14px 0 10px;
+      font-size: var(--el-font-size-extra-small);
+      line-height: 36px;
+      border-radius: 12px;
+
+      .el-icon {
+        flex: 0 0 auto;
+        margin-right: 10px;
+        font-size: 16px;
+      }
+
+      span {
+        min-width: 0;
+      }
+    }
+
+    html.colorful &:not(.setting-btn__popper--opacity) {
+      background-color: var(--el-color-primary-light-9);
+
+      .el-dropdown-menu__item:hover {
+        background-color: var(--el-color-primary-light-8);
+      }
+    }
+
+    &.setting-btn__popper--opacity {
+      background-color: var(--le-bg-color-overlay-opacity-20);
+    }
+
+    &.setting-btn__popper--blur {
+      @include acrylic.acrylic;
+    }
+  }
+}
+
+.account-btn__popper.el-popper {
+  padding: 8px;
+  overflow: hidden;
+  background-color: var(--el-bg-color-overlay);
+  border: 1px solid color-mix(in srgb, var(--el-border-color) 58%, transparent);
+  border-radius: 15px;
+  box-shadow: var(--el-box-shadow-light);
+
+  .el-dropdown-menu {
+    padding: 0;
+    background-color: transparent;
+    border: 0;
+  }
+
+  .el-dropdown-menu__item {
+    display: flex;
+    align-items: center;
+    min-width: 150px;
+    height: 36px;
+    padding: 0 14px 0 10px;
+    font-size: var(--el-font-size-extra-small);
+    line-height: 36px;
+    border-radius: 12px;
+
+    .el-icon {
+      flex: 0 0 auto;
+      margin-right: 10px;
+      font-size: 16px;
+    }
+
+    span {
+      min-width: 0;
+    }
+
+    &:not(.is-disabled):hover,
+    &:not(.is-disabled):focus {
+      background-color: var(--el-fill-color-blank);
+    }
+  }
+
+  html.colorful & {
+    background-color: var(--el-color-primary-light-9);
+
+    .el-dropdown-menu__item:not(.is-disabled):hover,
+    .el-dropdown-menu__item:not(.is-disabled):focus {
+      background-color: var(--el-color-primary-light-8);
+    }
+  }
+
+  html.dialog-transparent & {
+    background-color: var(--le-bg-color-overlay-opacity-20);
+  }
+
+  html.dialog-acrylic & {
+    @include acrylic.acrylic;
+  }
+}

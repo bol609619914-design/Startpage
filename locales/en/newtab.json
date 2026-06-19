@@ -1,0 +1,237 @@
+{
+  "about": {
+    "yiyanProvider": "Chinese poetry API provided by {api}"
+  },
+  "account": {
+    "code": {
+      "devDescription": "Local debug code: {{code}}",
+      "devTitle": "Verification code generated",
+      "label": "Verification code",
+      "placeholder": "Enter the 6-digit code",
+      "send": "Send code",
+      "sent": "Verification code sent"
+    },
+    "email": "Email",
+    "emailPlaceholder": "you@example.com",
+    "errors": {
+      "accountExists": "This email is already registered",
+      "accountNotFound": "No account found for this email",
+      "cloudRequestFailed": "Cloud request failed",
+      "cloudUnavailable": "Cloud service is not configured yet",
+      "invalidCode": "The code is incorrect or expired",
+      "invalidCredentials": "Email or password is incorrect",
+      "invalidEmail": "Please enter a valid email",
+      "inviteInvalid": "Invite code does not exist or is unavailable",
+      "inviteRequired": "Please enter an invite code",
+      "inviteUsed": "Invite code has already been used",
+      "passwordNotSet": "This account has no cloud password yet. Please reset it first.",
+      "emailDomainUnverified": "Email sender domain is not verified in Resend yet",
+      "emailRecipientNotAllowed": "Email service is in test mode and can only send to the Resend account email",
+      "emailSendFailed": "Failed to send email. Please try again later.",
+      "emailUnavailable": "Email service is not configured yet",
+      "unknown": "Something went wrong. Please try again.",
+      "weakPassword": "Password must be at least 6 characters"
+    },
+    "invite": {
+      "label": "Invite code",
+      "placeholder": "Enter the invite code from your friend"
+    },
+    "login": {
+      "submit": "Sign in",
+      "tab": "Sign in",
+      "title": "Sign in"
+    },
+    "logout": "Sign out",
+    "newPassword": "New password",
+    "open": "Sign in / Register",
+    "password": "Password",
+    "passwordPlaceholder": "At least 6 characters",
+    "register": {
+      "submit": "Create account",
+      "tab": "Register",
+      "title": "Create account"
+    },
+    "reset": {
+      "submit": "Reset password",
+      "tab": "Reset",
+      "title": "Reset password"
+    },
+    "signedIn": "Signed in",
+    "signedOut": "Signed out"
+  },
+  "bookmark": {
+    "404": "Nothing found",
+    "addToQuickLinks": "Add to Quick Links",
+    "added": "Added to Quick Links",
+    "collapse": {
+      "all": "Collapse All at Level",
+      "other": "Collapse Other at Level"
+    },
+    "delete": {
+      "confirm": "Are you sure you want to delete “{{title}}”?",
+      "confirmFolder": "“{{title}}” is a folder. Deleting it will also delete all bookmarks inside it. Are you sure?",
+      "success": "“{{title}}” has been deleted"
+    },
+    "expandHint": "Please expand the sidebar to view bookmarks",
+    "moveError": "Failed to move bookmark",
+    "sortBy": "Sort by",
+    "sortMode": {
+      "createdAsc": "Newest",
+      "createdDesc": "Oldest",
+      "nameAsc": "Name A–Z",
+      "nameDesc": "Name Z–A",
+      "origin": "Original Order"
+    },
+    "title": "Bookmark",
+    "tooSmall": "Sidebar is too narrow"
+  },
+  "bootstrap": {
+    "invalidVer": {
+      "bak": "You may also click the button below to download a backup of the previous settings version (it cannot be imported into the current version).",
+      "btn": "Clear and Refresh",
+      "msg": "We’re sorry, but an unsupported legacy settings version was detected. To ensure the extension functions properly, please clear the extension data and refresh.",
+      "title": "Unsupported Settings Version"
+    }
+  },
+  "changelog": {
+    "hideMajor": "Hide major update changelog",
+    "newVersionMsg": "Your start page has been updated!",
+    "otherVersions": {
+      "description": "Only the latest 5 versions are included. Click the links below to view the full changelog:",
+      "linkEn": "English",
+      "linkZhCN": "Chinese (Simplified)",
+      "title": "Other Versions?"
+    },
+    "title": "Changelog"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "confirm": "Yes",
+    "delete": "Delete",
+    "edit": "Edit",
+    "enable": "Enable",
+    "icon": "Icon (Optional)",
+    "name": "Name",
+    "no": "No",
+    "save": "Save",
+    "tooLargeImageConfirm": "This image is large ({{size}}) and may affect performance and responsiveness. Continue?",
+    "undo": "Undo",
+    "url": "URL",
+    "warning": "Warning"
+  },
+  "customSearchEngine": {
+    "add": "Add Custom Search Engine",
+    "addDialog": {
+      "invalidUrlError": "Invalid URL or missing %s placeholder",
+      "nameRequiredError": "Name cannot be empty",
+      "urlHelp": "URL must contain %s as a placeholder for search keywords"
+    },
+    "deleteConfirm": "Are you sure you want to delete search engine \"{{name}}\"?",
+    "edit": "Edit Custom Search Engine",
+    "title": "Custom Search Engine",
+    "fetchingFavicon": "Fetching icon in background..."
+  },
+  "dock": {
+    "launchpad": {
+      "add": "Add",
+      "empty": "No results",
+      "search": "Search...",
+      "title": "Launchpad"
+    }
+  },
+  "menu": {
+    "about": "About",
+    "backgroundPreference": "Background Preference",
+    "help": "Help / Feedback",
+    "searchEnginePreference": "Search Engine Preference",
+    "sponsor": "Sponsor"
+  },
+  "notification": {
+    "bing": {
+      "message": "Please check the console output in developer tools.",
+      "title": "Failed to get Bing wallpaper"
+    },
+    "faviconCacheHint": {
+      "message": "Enable favicon cache in \"Other\" settings for faster icon loading",
+      "title": "Tip: Favicon cache is disabled"
+    },
+    "wallpaperCache": {
+      "message": "Unable to cache online wallpaper: ${error}",
+      "title": "Failed to cache online wallpaper"
+    },
+    "welcome": {
+      "message": "Welcome to Startpage! Customize your start page from the settings button.",
+      "title": "Welcome to Startpage"
+    }
+  },
+  "search": {
+    "engineMenu": {
+      "current": "Current",
+      "tipPrefix": "Tip: Press",
+      "tipSuffix": "to switch search engine."
+    },
+    "engines": {
+      "baidu": "Baidu",
+      "bing": "Bing",
+      "duckduckgo": "DuckDuckGo",
+      "google": "Google",
+      "yandex": "Yandex"
+    },
+    "placeholder": "Search",
+    "purgeSearchHistory": "Clear Search History",
+    "searchEngineNotFound": "Search engine not found"
+  },
+  "sponsor": "Startpage is a personal homepage and new tab web app. If you have ideas or feedback, feel free to share them through GitHub Issues. Thank you for your support!",
+  "time": {
+    "afternoon": "",
+    "dawn": "",
+    "dusk": "",
+    "evening": "",
+    "lateNight": "",
+    "morning": "",
+    "noon": ""
+  },
+  "title": "Startpage",
+  "yiyan": {
+    "copied": "Copied to clipboard"
+  },
+  "quickLinks": {
+    "addDialog": {
+      "extensionIconTip": "The link will be saved to your Quick Links.",
+      "invalidUrlError": "Invalid URL. Please input a new one",
+      "uploadFaviconAlert": "If you don't upload an icon, consider enabling Settings → Other → Icon cache to automatically fetch icons."
+    },
+    "addLink": "Add Link",
+    "bookmark": {
+      "add": "Add to Bookmarks",
+      "existing": "This bookmark already exists",
+      "success": "Saved to “{{folder}}”"
+    },
+    "editLink": "Edit Link",
+    "groups": {
+      "default": "Default",
+      "defaultDeleteBlocked": "The default group cannot be deleted.",
+      "deleteConfirm": "Delete group “{{name}}” and all links inside it?",
+      "moveTo": "Move to Group",
+      "selectAddTarget": "Choose a group for the new link",
+      "selectMoveTarget": "Choose a group to move to",
+      "selectPinTarget": "Choose a group to save to",
+      "selectTitle": "Choose Group",
+      "topSites": "Most visited",
+      "untitled": "Group {{index}}"
+    },
+    "hide": "Hide",
+    "moveError": "Move failed",
+    "moveLeft": "Move left",
+    "moveRight": "Move right",
+    "hideTopMessage": {
+      "content": "Most visited site hidden.",
+      "restoreDefault": "Restore default",
+      "restoreSuccess": "Default most visited site restored"
+    },
+    "pin": "Pin",
+    "unpin": "Unpin",
+    "unpinMessage": "Link unpinned.",
+    "fetchingFavicon": "Fetching icon in background..."
+  }
+}

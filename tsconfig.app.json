@@ -1,0 +1,21 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": [
+    "entrypoints/**/*",
+    "entrypoints/**/*.vue",
+    "web/**/*",
+    "types/**/*",
+    "shared/**/*"
+  ],
+  "exclude": ["scripts/**/*"],
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+
+    "paths": {
+      "@/*": ["./*"],
+      "@newtab/*": ["./entrypoints/newtab/*"]
+    },
+    "jsx": "preserve",
+    "jsxImportSource": "vue"
+  }
+}
