@@ -25,6 +25,8 @@ type InviteRow = {
   status: string
   used_count: number
   max_uses: number
+  created_at?: string
+  used_at?: string | null
 }
 
 type HotListKind = 'zhihu' | 'baidu' | 'weibo'
@@ -213,12 +215,10 @@ async function registerAuth(request: Request, env: Env) {
         )?.owner_user_id ?? null
       : null
 
-    const user = await ensureUser(env, email, invitedBy)
+    await ensureUser(env, email, invitedBy)
     if (result.invite) {
       await env.DB.batch([
-        env.DB.prepare(
-          "UPDATE invite_codes SET used_count = used_count + 1, used_by_user_id = ?, used_at = CURRENT_TIMESTAMP, status = CASE WHEN used_count + 1 >= max_uses THEN 'used' ELSE status END WHERE code = ?",
-        ).bind(user.id, code),
+        env.DB.prepare('DELETE FROM invite_codes WHERE code = ?').bind(code),
         env.DB.prepare(
           'UPDATE users SET invite_points = invite_points + 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
         ).bind(invitedBy ?? ''),
@@ -319,13 +319,11 @@ async function consumeInvite(request: Request, env: Env) {
         .bind(code)
         .first<{ owner_user_id: string | null }>()
     : null
-  const user = await ensureUser(env, email, owner?.owner_user_id ?? null)
+  await ensureUser(env, email, owner?.owner_user_id ?? null)
 
   if (result.invite) {
     await env.DB.batch([
-      env.DB.prepare(
-        "UPDATE invite_codes SET used_count = used_count + 1, used_by_user_id = ?, used_at = CURRENT_TIMESTAMP, status = CASE WHEN used_count + 1 >= max_uses THEN 'used' ELSE status END WHERE code = ?",
-      ).bind(user.id, code),
+      env.DB.prepare('DELETE FROM invite_codes WHERE code = ?').bind(code),
       env.DB.prepare(
         'UPDATE users SET invite_points = invite_points + 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
       ).bind(owner?.owner_user_id ?? ''),
@@ -372,6 +370,11 @@ async function getDashboard(request: Request, env: Env, url: URL) {
 
   const user = await ensureUser(env, email)
   await cleanupExpiredNotes(env, user.id)
+  await env.DB.prepare(
+    "DELETE FROM invite_codes WHERE owner_user_id = ? AND (status != 'active' OR used_count >= max_uses)",
+  )
+    .bind(user.id)
+    .run()
   await ensureDefaultRssSources(env, user.id)
   const [notes, rssSources, invites, inviteStats] = await Promise.all([
     env.DB.prepare(
@@ -385,7 +388,7 @@ async function getDashboard(request: Request, env: Env, url: URL) {
       .bind(user.id)
       .all(),
     env.DB.prepare(
-      'SELECT code, status, used_count AS usedCount, max_uses AS maxUses, created_at AS createdAt, used_at AS usedAt FROM invite_codes WHERE owner_user_id = ? ORDER BY created_at DESC LIMIT 20',
+      "SELECT code, status, used_count AS usedCount, max_uses AS maxUses, created_at AS createdAt, used_at AS usedAt FROM invite_codes WHERE owner_user_id = ? AND status = 'active' AND used_count < max_uses ORDER BY created_at DESC LIMIT 20",
     )
       .bind(user.id)
       .all(),
@@ -634,7 +637,17 @@ async function createInvite(request: Request, env: Env) {
   await env.DB.prepare('INSERT INTO invite_codes (code, owner_user_id) VALUES (?, ?)')
     .bind(code, user.id)
     .run()
-  return json(request, env, { code })
+  return json(request, env, {
+    code,
+    invite: {
+      code,
+      status: 'active',
+      usedCount: 0,
+      maxUses: 1,
+      createdAt: new Date().toISOString(),
+      usedAt: null,
+    },
+  })
 }
 
 export default {

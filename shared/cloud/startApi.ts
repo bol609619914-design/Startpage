@@ -181,7 +181,7 @@ export async function deleteRssSource(email: string, id: string) {
 }
 
 export async function createInvite(email: string) {
-  return request<{ code: string }>('/invites', {
+  return request<{ code: string; invite?: InviteCode }>('/invites', {
     method: 'POST',
     body: JSON.stringify({ email }),
   })

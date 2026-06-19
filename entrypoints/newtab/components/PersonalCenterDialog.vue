@@ -82,6 +82,22 @@ async function handleCreateInvite() {
   if (!isInviteAdmin.value) return
   try {
     const result = await createInvite(props.session.email)
+    const invite = result.invite ?? {
+      code: result.code,
+      status: 'active',
+      usedCount: 0,
+      maxUses: 1,
+      createdAt: new Date().toISOString(),
+      usedAt: null,
+    }
+    dashboard.value = {
+      notes: dashboard.value?.notes ?? [],
+      rssSources: dashboard.value?.rssSources ?? [],
+      invitedCount: dashboard.value?.invitedCount ?? 0,
+      invitePoints: dashboard.value?.invitePoints ?? 0,
+      canCreateInvites: true,
+      invites: [invite, ...(dashboard.value?.invites ?? []).filter((item) => item.code !== invite.code)],
+    }
     ElMessage.success(`推荐码：${result.code}`)
     await loadDashboard()
   } catch (error) {
