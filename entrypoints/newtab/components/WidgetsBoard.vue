@@ -272,6 +272,10 @@ window.addEventListener('start-account-signed-out', () => {
       display: none;
     }
 
+    .el-icon {
+      font-size: 18px;
+    }
+
     &:hover,
     &:focus-visible {
       .el-icon {

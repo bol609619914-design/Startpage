@@ -84,13 +84,32 @@
 
   .base-dialog-close-btn {
     position: static;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    color: var(--el-text-color-secondary);
+    cursor: pointer;
+    background: transparent;
+    border-radius: 50%;
+    box-shadow: none;
+    transition:
+      color 180ms ease,
+      background-color 180ms ease,
+      transform 180ms ease;
 
-    &:hover {
-      box-shadow: var(--el-box-shadow-light);
+    svg {
+      width: 18px;
+      height: 18px;
+    }
 
-      html.colorful & {
-        background-color: var(--el-color-primary-light-9);
-      }
+    &:hover,
+    &:focus-visible {
+      color: var(--el-color-primary);
+      outline: none;
+      background: color-mix(in srgb, var(--el-color-primary) 10%, transparent);
+      box-shadow: none;
+      transform: scale(1.04);
     }
   }
 
