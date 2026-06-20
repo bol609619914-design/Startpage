@@ -72,6 +72,25 @@ type BaiduHotListPayload = {
   }
 }
 
+type WeatherPayload = {
+  status?: number
+  cityInfo?: {
+    city?: string
+    citykey?: string
+    updateTime?: string
+  }
+  data?: {
+    shidu?: string
+    quality?: string
+    wendu?: string
+    forecast?: Array<{
+      type?: string
+      fx?: string
+      fl?: string
+    }>
+  }
+}
+
 const TEST_INVITE_CODE = 'TEST'
 const INVITE_ADMIN_EMAIL = 'abo_bb@qq.com'
 const DEFAULT_RSS_SOURCE = {
@@ -726,6 +745,46 @@ async function getHotList(request: Request, env: Env, url: URL) {
   return json(request, env, payload)
 }
 
+async function getWeather(request: Request, env: Env, url: URL) {
+  const cityCode = url.searchParams.get('cityCode') || '101020100'
+  if (!/^\d{9}$/.test(cityCode)) {
+    return json(request, env, { error: 'invalidWeatherCity' }, { status: 400 })
+  }
+
+  const upstream = await fetch(`http://t.weather.itboy.net/api/weather/city/${cityCode}`, {
+    headers: {
+      Accept: 'application/json',
+      'User-Agent': 'startpage/1.0',
+    },
+    cf: {
+      cacheTtl: 1800,
+      cacheEverything: true,
+    },
+  })
+  if (!upstream.ok) {
+    return json(request, env, { error: 'weatherUnavailable' }, { status: 502 })
+  }
+
+  const payload = (await upstream.json().catch(() => null)) as WeatherPayload | null
+  const current = payload?.data
+  const forecast = current?.forecast?.[0]
+  const temp = Number.parseFloat(current?.wendu || '')
+  if (payload?.status !== 200 || !current || Number.isNaN(temp)) {
+    return json(request, env, { error: 'weatherUnavailable' }, { status: 502 })
+  }
+
+  return json(request, env, {
+    success: true,
+    city: payload.cityInfo?.city || '上海市',
+    temp,
+    type: forecast?.type || '天气',
+    wind: [forecast?.fx, forecast?.fl].filter(Boolean).join(' ') || '',
+    humidity: current.shidu || '',
+    quality: current.quality || '',
+    updateTime: payload.cityInfo?.updateTime || '',
+  })
+}
+
 async function createInvite(request: Request, env: Env) {
   const body = await readJson(request)
   const email = normalizeEmail(body.email)
@@ -780,6 +839,7 @@ export default {
       if (path === '/dock' && request.method === 'PUT') return putDock(request, env, url)
       if (path === '/dashboard' && request.method === 'GET') return getDashboard(request, env, url)
       if (path === '/hotlist' && request.method === 'GET') return getHotList(request, env, url)
+      if (path === '/weather' && request.method === 'GET') return getWeather(request, env, url)
       if (path === '/notes' && request.method === 'POST') return createNote(request, env)
       if (path.startsWith('/notes/') && request.method === 'PATCH') {
         return updateNote(request, env, path.split('/')[2] || '')

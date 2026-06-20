@@ -42,6 +42,17 @@ export interface HotListData {
   data: HotListItem[]
 }
 
+export interface DomesticWeatherData {
+  success: boolean
+  city: string
+  temp: number
+  type: string
+  wind: string
+  humidity?: string
+  quality?: string
+  updateTime?: string
+}
+
 export interface InviteCode {
   code: string
   status: string
@@ -151,6 +162,11 @@ export async function fetchInvites(email: string) {
 export async function fetchHotList(type: HotListKind) {
   const params = new URLSearchParams({ type })
   return request<HotListData>(`/hotlist?${params.toString()}`)
+}
+
+export async function fetchDomesticWeather(cityCode = '101020100') {
+  const params = new URLSearchParams({ cityCode, t: String(Date.now()) })
+  return request<DomesticWeatherData>(`/weather?${params.toString()}`)
 }
 
 export async function createNote(email: string, body: string) {

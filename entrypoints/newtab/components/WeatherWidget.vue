@@ -7,30 +7,14 @@ import CloudOutlined from '~icons/ic/outline-cloud'
 import GrainOutlined from '~icons/ic/outline-grain'
 import LocationOnOutlined from '~icons/ic/outline-location-on'
 import NightsStayOutlined from '~icons/ic/outline-nights-stay'
-import RefreshOutlined from '~icons/ic/outline-refresh'
 import ThunderstormOutlined from '~icons/ic/outline-thunderstorm'
 import WbSunnyOutlined from '~icons/ic/outline-wb-sunny'
 
-type WeatherCurrent = {
-  temperature_2m?: number
-  weather_code?: number
-  is_day?: number
-  wind_speed_10m?: number
-}
-
-type WeatherResponse = {
-  current?: WeatherCurrent
-  current_units?: {
-    temperature_2m?: string
-    wind_speed_10m?: string
-  }
-}
+import { fetchDomesticWeather } from '@/shared/cloud/startApi'
 
 type WeatherState = {
   temp: number
-  code: number
-  isDay: boolean
-  wind: number
+  type: string
   tempUnit: string
   windUnit: string
   label: string
@@ -38,11 +22,6 @@ type WeatherState = {
 }
 
 const CACHE_KEY = 'startpage:weather-widget:v1'
-const FALLBACK_LOCATION = {
-  latitude: 31.2304,
-  longitude: 121.4737,
-  label: '上海',
-}
 
 const weather = ref<WeatherState | null>(readCachedWeather())
 const loading = ref(false)
@@ -55,7 +34,7 @@ const weatherMeta = computed(() => {
       text: loading.value ? '定位中' : '天气',
     }
   }
-  return describeWeather(weather.value.code, weather.value.isDay)
+  return describeWeather(weather.value.type)
 })
 
 function readCachedWeather() {
@@ -64,6 +43,7 @@ function readCachedWeather() {
     if (!raw) return null
     const parsed = JSON.parse(raw) as WeatherState
     if (!parsed.updatedAt || Date.now() - parsed.updatedAt > 30 * 60 * 1000) return null
+    if (typeof parsed.type !== 'string' || typeof parsed.temp !== 'number') return null
     return parsed
   } catch {
     return null
@@ -74,31 +54,6 @@ function saveCachedWeather(nextWeather: WeatherState) {
   localStorage.setItem(CACHE_KEY, JSON.stringify(nextWeather))
 }
 
-function getPosition() {
-  return new Promise<typeof FALLBACK_LOCATION>((resolve) => {
-    if (!navigator.geolocation) {
-      resolve(FALLBACK_LOCATION)
-      return
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        resolve({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          label: '当前位置',
-        })
-      },
-      () => resolve(FALLBACK_LOCATION),
-      {
-        enableHighAccuracy: false,
-        maximumAge: 30 * 60 * 1000,
-        timeout: 3500,
-      },
-    )
-  })
-}
-
 async function loadWeather(force = false) {
   if (loading.value) return
   if (!force && weather.value && Date.now() - weather.value.updatedAt < 30 * 60 * 1000) return
@@ -106,28 +61,13 @@ async function loadWeather(force = false) {
   loading.value = true
   error.value = false
   try {
-    const location = await getPosition()
-    const params = new URLSearchParams({
-      latitude: String(location.latitude),
-      longitude: String(location.longitude),
-      current: 'temperature_2m,weather_code,is_day,wind_speed_10m',
-      timezone: 'auto',
-      forecast_days: '1',
-    })
-    const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`)
-    if (!response.ok) throw new Error('weatherRequestFailed')
-    const data = (await response.json()) as WeatherResponse
-    const current = data.current
-    if (!current || typeof current.temperature_2m !== 'number') throw new Error('weatherEmpty')
-
+    const data = await fetchDomesticWeather()
     const nextWeather: WeatherState = {
-      temp: current.temperature_2m,
-      code: current.weather_code ?? 0,
-      isDay: current.is_day !== 0,
-      wind: current.wind_speed_10m ?? 0,
-      tempUnit: data.current_units?.temperature_2m ?? '°C',
-      windUnit: data.current_units?.wind_speed_10m ?? 'km/h',
-      label: location.label,
+      temp: data.temp,
+      type: data.type,
+      tempUnit: '°C',
+      windUnit: data.wind || data.quality || data.humidity || '',
+      label: data.city.replace(/市$/, ''),
       updatedAt: Date.now(),
     }
     weather.value = nextWeather
@@ -139,16 +79,14 @@ async function loadWeather(force = false) {
   }
 }
 
-function describeWeather(code: number, isDay: boolean): { icon: Component; text: string } {
-  if (code === 0) return { icon: isDay ? WbSunnyOutlined : NightsStayOutlined, text: '晴' }
-  if ([1, 2, 3].includes(code)) return { icon: CloudOutlined, text: '多云' }
-  if ([45, 48].includes(code)) return { icon: CloudOutlined, text: '雾' }
-  if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(code)) {
-    return { icon: GrainOutlined, text: '雨' }
-  }
-  if ([71, 73, 75, 77, 85, 86].includes(code)) return { icon: AcUnitOutlined, text: '雪' }
-  if ([95, 96, 99].includes(code)) return { icon: ThunderstormOutlined, text: '雷雨' }
-  return { icon: CloudOutlined, text: '天气' }
+function describeWeather(type: string): { icon: Component; text: string } {
+  if (type.includes('晴')) return { icon: WbSunnyOutlined, text: type }
+  if (type.includes('云') || type.includes('阴')) return { icon: CloudOutlined, text: type }
+  if (type.includes('雨')) return { icon: GrainOutlined, text: type }
+  if (type.includes('雪')) return { icon: AcUnitOutlined, text: type }
+  if (type.includes('雷')) return { icon: ThunderstormOutlined, text: type }
+  if (type.includes('夜')) return { icon: NightsStayOutlined, text: type }
+  return { icon: CloudOutlined, text: type || '天气' }
 }
 
 onMounted(() => {
@@ -157,14 +95,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <button
+  <div
     class="weather-widget noselect"
-    type="button"
-    :aria-label="error ? '刷新天气' : '天气'"
-    @click="loadWeather(true)"
+    role="status"
+    :aria-label="error ? '天气加载失败' : '天气'"
   >
     <span class="weather-widget__icon">
-      <component :is="error ? RefreshOutlined : weatherMeta.icon" />
+      <component :is="weatherMeta.icon" />
     </span>
     <span class="weather-widget__main">
       <template v-if="weather">
@@ -172,16 +109,16 @@ onMounted(() => {
         <span>{{ weatherMeta.text }}</span>
       </template>
       <template v-else>
-        <strong>{{ error ? '重试' : '天气' }}</strong>
+        <strong>天气</strong>
         <span>{{ loading ? '获取中' : '线条' }}</span>
       </template>
     </span>
     <span v-if="weather" class="weather-widget__meta">
       <air-outlined />
-      {{ Math.round(weather.wind) }}{{ weather.windUnit }}
+      {{ weather.windUnit }}
     </span>
     <span v-if="weather" class="weather-widget__place">{{ weather.label }}</span>
-  </button>
+  </div>
 </template>
 
 <style lang="scss">
@@ -195,22 +132,21 @@ onMounted(() => {
   margin: 0 0 8px;
   color: rgb(255 255 255 / 88%);
   text-shadow: 0 1px 8px rgb(0 0 0 / 22%);
-  cursor: pointer;
+  cursor: default;
   background: transparent;
   border: 0;
-  border-bottom: 1px solid rgb(255 255 255 / 30%);
   border-radius: 0;
   box-shadow: none;
   backdrop-filter: none;
   transition:
-    border-color 180ms ease,
-    color 180ms ease;
+    color 180ms ease,
+    transform 0.25s cubic-bezier(0.5, 0, 0.5, 2);
 
   &:hover,
   &:focus-visible {
     color: #fff;
     background: transparent;
-    border-bottom-color: rgb(255 255 255 / 64%);
+    transform: scale(1.1);
   }
 
   &:focus-visible {
