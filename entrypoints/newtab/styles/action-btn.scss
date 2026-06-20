@@ -56,10 +56,13 @@
 
 .action-btn {
   position: relative;
-  width: 33px;
-  height: 33px;
-  padding: 4px;
-  font-size: 25px;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  font-size: 20px;
   line-height: 1em;
   cursor: pointer;
   transition: var(--el-transition-duration-fast) ease-in-out;
@@ -87,6 +90,9 @@
   }
 
   .el-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
     transition: transform var(--el-transition-duration) ease-in-out;
   }
 }

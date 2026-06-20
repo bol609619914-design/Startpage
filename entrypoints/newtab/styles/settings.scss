@@ -165,6 +165,17 @@
   }
 }
 
+@media (width > 600px) {
+  .settings-header {
+    .base-dialog-close-btn {
+      &:hover,
+      &:focus-visible {
+        transform: rotate(90deg) scale(1.04);
+      }
+    }
+  }
+}
+
 .settings__items-container {
   padding: 14px 25px;
   margin-bottom: 10px;

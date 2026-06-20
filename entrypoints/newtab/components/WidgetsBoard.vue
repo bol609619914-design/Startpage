@@ -272,10 +272,6 @@ window.addEventListener('start-account-signed-out', () => {
       display: none;
     }
 
-    .el-icon {
-      font-size: 18px;
-    }
-
     &:hover,
     &:focus-visible {
       .el-icon {
@@ -386,7 +382,9 @@ window.addEventListener('start-account-signed-out', () => {
     background: color-mix(in srgb, var(--el-bg-color-page) 84%, transparent);
     border: 1px solid color-mix(in srgb, var(--el-border-color) 54%, transparent);
     border-radius: 20px;
-    box-shadow: 0 18px 48px rgb(0 0 0 / 22%);
+    box-shadow:
+      0 0 18px 2px color-mix(in srgb, var(--el-bg-color-page) 54%, transparent),
+      0 18px 48px rgb(0 0 0 / 22%);
     backdrop-filter: blur(20px) saturate(1.25);
     clip-path: inset(0 round 20px);
     transform-origin: right center;
@@ -732,6 +730,7 @@ window.addEventListener('start-account-signed-out', () => {
       border-radius: 20px;
       box-shadow:
         0 0 15px 0 var(--le-bg-color-page-opacity-60),
+        0 0 26px 4px color-mix(in srgb, var(--el-bg-color-page) 58%, transparent),
         0 18px 44px rgb(0 0 0 / 20%),
         0 0 0 1px color-mix(in srgb, var(--el-border-color) 42%, transparent);
       clip-path: inset(0 round 20px);
@@ -759,8 +758,8 @@ window.addEventListener('start-account-signed-out', () => {
     }
 
     &__close {
-      width: 38px;
-      height: 38px;
+      width: 44px;
+      height: 44px;
       background: transparent !important;
 
       &:hover,
