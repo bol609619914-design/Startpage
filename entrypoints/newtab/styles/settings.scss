@@ -28,7 +28,19 @@
     display: flex;
     flex: 1;
     flex-direction: column;
+    min-width: 0;
+    min-height: 0;
     transition: color var(--el-transition-duration-fast) ease;
+  }
+
+  &.is-mobile {
+    width: min(93vw, 430px) !important;
+    height: min(78dvh, 640px);
+    max-height: calc(100dvh - 26px);
+  }
+
+  &.is-mobile-main-menu {
+    height: min(64dvh, 520px);
   }
 }
 
@@ -385,14 +397,20 @@
 }
 
 .settings-main.el-main {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
   padding: 0 20px 0 30px;
 
   .is-mobile & {
+    width: 100%;
+    height: calc(100% - 50px);
     padding: 0 15px 0 25px;
   }
 
   .settings-content {
     height: 100%;
+    min-height: 0;
 
     .el-scrollbar__wrap {
       padding-right: 10px;

@@ -48,9 +48,28 @@ type HotListItem = {
 
 type VhanHotListGroup = {
   name?: string
+  title?: string
   subtitle?: string
+  updateTime?: string
   update_time?: string
   data?: HotListItem[]
+}
+
+type BaiduHotListPayload = {
+  data?: {
+    cards?: Array<{
+      content?: Array<{
+        content?: Array<{
+          index?: number
+          isTop?: boolean
+          url?: string
+          word?: string
+          hotScore?: string | number
+          desc?: string
+        }>
+      }>
+    }>
+  }
 }
 
 const TEST_INVITE_CODE = 'TEST'
@@ -373,13 +392,8 @@ async function getDashboard(request: Request, env: Env, url: URL) {
 
   const user = await ensureUser(env, email)
   await cleanupExpiredNotes(env, user.id)
-  await env.DB.prepare(
-    "DELETE FROM invite_codes WHERE owner_user_id = ? AND (status != 'active' OR used_count >= max_uses)",
-  )
-    .bind(user.id)
-    .run()
   await ensureDefaultRssSources(env, user.id)
-  const [notes, rssSources, invites, inviteStats] = await Promise.all([
+  const [notes, rssSources, inviteStats] = await Promise.all([
     env.DB.prepare(
       'SELECT id, title, body, done, position, created_at AS createdAt, updated_at AS updatedAt FROM notes WHERE user_id = ? ORDER BY position ASC, created_at ASC',
     )
@@ -387,11 +401,6 @@ async function getDashboard(request: Request, env: Env, url: URL) {
       .all(),
     env.DB.prepare(
       'SELECT id, title, url, position, created_at AS createdAt FROM rss_sources WHERE user_id = ? ORDER BY position ASC, created_at ASC',
-    )
-      .bind(user.id)
-      .all(),
-    env.DB.prepare(
-      "SELECT code, status, used_count AS usedCount, max_uses AS maxUses, created_at AS createdAt, used_at AS usedAt FROM invite_codes WHERE owner_user_id = ? AND status = 'active' AND used_count < max_uses ORDER BY created_at DESC LIMIT 20",
     )
       .bind(user.id)
       .all(),
@@ -403,6 +412,37 @@ async function getDashboard(request: Request, env: Env, url: URL) {
   return json(request, env, {
     notes: notes.results ?? [],
     rssSources: rssSources.results ?? [],
+    invites: [],
+    invitedCount: inviteStats?.invitedCount ?? 0,
+    invitePoints: user.invite_points,
+    canCreateInvites: canCreateUnlimitedInvites(email),
+  })
+}
+
+async function listInvites(request: Request, env: Env, url: URL) {
+  const email = getEmail(request, url)
+  const invalidEmail = requireEmail(request, env, email)
+  if (invalidEmail) return invalidEmail
+
+  const user = await ensureUser(env, email)
+  await env.DB.prepare(
+    "DELETE FROM invite_codes WHERE owner_user_id = ? AND (status != 'active' OR used_count >= max_uses)",
+  )
+    .bind(user.id)
+    .run()
+
+  const [invites, inviteStats] = await Promise.all([
+    env.DB.prepare(
+      "SELECT code, status, used_count AS usedCount, max_uses AS maxUses, created_at AS createdAt, used_at AS usedAt FROM invite_codes WHERE owner_user_id = ? AND status = 'active' AND used_count < max_uses ORDER BY created_at DESC LIMIT 50",
+    )
+      .bind(user.id)
+      .all(),
+    env.DB.prepare('SELECT COUNT(*) AS invitedCount FROM users WHERE invited_by = ?')
+      .bind(user.id)
+      .first<{ invitedCount: number }>(),
+  ])
+
+  return json(request, env, {
     invites: invites.results ?? [],
     invitedCount: inviteStats?.invitedCount ?? 0,
     invitePoints: user.invite_points,
@@ -554,6 +594,31 @@ async function fetchVhanHotList(type: HotListKind) {
   }
 }
 
+async function fetchVvhanHotList(type: HotListKind) {
+  const upstream = await fetch(`https://api.vvhan.com/api/hotlist?type=${encodeURIComponent(type)}`, {
+    headers: {
+      Accept: 'application/json',
+      'User-Agent': 'startpage/1.0',
+    },
+    cf: {
+      cacheTtl: 300,
+      cacheEverything: true,
+    },
+  })
+  if (!upstream.ok) return null
+
+  const payload = (await upstream.json().catch(() => null)) as VhanHotListGroup | null
+  if (!payload?.data?.length) return null
+
+  return {
+    success: true,
+    title: payload.title || payload.name || hotListDisplayName(type),
+    subtitle: payload.subtitle || '',
+    updateTime: payload.updateTime || payload.update_time || new Date().toISOString(),
+    data: payload.data.map(normalizeHotListItem).filter((item) => item.title && item.url).slice(0, 30),
+  }
+}
+
 async function fetchWeiboHotList() {
   const upstream = await fetch('https://weibo.com/ajax/side/hotSearch', {
     headers: {
@@ -605,6 +670,43 @@ async function fetchWeiboHotList() {
   }
 }
 
+async function fetchBaiduHotList() {
+  const upstream = await fetch('https://top.baidu.com/api/board?platform=wise&tab=realtime', {
+    headers: {
+      Accept: 'application/json',
+      'User-Agent': 'Mozilla/5.0 startpage/1.0',
+    },
+    cf: {
+      cacheTtl: 300,
+      cacheEverything: true,
+    },
+  })
+  if (!upstream.ok) return null
+
+  const payload = (await upstream.json().catch(() => null)) as BaiduHotListPayload | null
+  const rows = payload?.data?.cards?.flatMap((card) => card.content?.flatMap((group) => group.content ?? []) ?? [])
+  if (!rows?.length) return null
+
+  return {
+    success: true,
+    title: '百度热点',
+    subtitle: '实时热点',
+    updateTime: new Date().toISOString(),
+    data: rows
+      .filter((item) => item.word && !item.isTop)
+      .map((item, index) => ({
+        index: Number(item.index ?? index + 1),
+        title: item.word || '',
+        desc: item.desc || '',
+        hot: item.hotScore === undefined ? '' : String(item.hotScore),
+        pic: '',
+        url: item.url || `https://m.baidu.com/s?word=${encodeURIComponent(item.word || '')}`,
+        mobileUrl: item.url || `https://m.baidu.com/s?word=${encodeURIComponent(item.word || '')}`,
+      }))
+      .slice(0, 30),
+  }
+}
+
 async function getHotList(request: Request, env: Env, url: URL) {
   const type = url.searchParams.get('type') as HotListKind | null
   if (type !== 'zhihu' && type !== 'baidu' && type !== 'weibo') {
@@ -612,7 +714,10 @@ async function getHotList(request: Request, env: Env, url: URL) {
   }
 
   const payload =
-    type === 'weibo' ? (await fetchWeiboHotList()) || (await fetchVhanHotList(type)) : await fetchVhanHotList(type)
+    (type === 'weibo' ? await fetchWeiboHotList() : null) ||
+    (type === 'baidu' ? await fetchBaiduHotList() : null) ||
+    (await fetchVvhanHotList(type)) ||
+    (await fetchVhanHotList(type))
 
   if (!payload?.data.length) {
     return json(request, env, { error: 'hotListUnavailable' }, { status: 502 })
@@ -669,6 +774,7 @@ export default {
       if (path === '/auth/reset' && request.method === 'POST') return resetAuth(request, env)
       if (path === '/invites/validate' && request.method === 'POST') return validateInvite(request, env)
       if (path === '/invites/consume' && request.method === 'POST') return consumeInvite(request, env)
+      if (path === '/invites' && request.method === 'GET') return listInvites(request, env, url)
       if (path === '/invites' && request.method === 'POST') return createInvite(request, env)
       if (path === '/dock' && request.method === 'GET') return getDock(request, env, url)
       if (path === '/dock' && request.method === 'PUT') return putDock(request, env, url)

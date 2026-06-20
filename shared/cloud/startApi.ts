@@ -141,6 +141,13 @@ export async function fetchDashboard(email: string) {
   return request<DashboardData>(`/dashboard?${params.toString()}`)
 }
 
+export async function fetchInvites(email: string) {
+  const params = new URLSearchParams({ email, t: String(Date.now()) })
+  return request<Pick<DashboardData, 'invites' | 'invitedCount' | 'invitePoints' | 'canCreateInvites'>>(
+    `/invites?${params.toString()}`,
+  )
+}
+
 export async function fetchHotList(type: HotListKind) {
   const params = new URLSearchParams({ type })
   return request<HotListData>(`/hotlist?${params.toString()}`)

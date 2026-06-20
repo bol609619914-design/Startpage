@@ -19,6 +19,12 @@ import {
 import { getAuthSession, type AuthSession } from '@newtab/shared/auth'
 
 type PanelKind = 'notes' | 'rss'
+type HotListCacheEntry = {
+  data: HotListData
+  fetchedAt: number
+}
+
+const HOT_LIST_STALE_MS = 15 * 60 * 1000
 
 const session = ref<AuthSession | null>(null)
 const dashboard = ref<DashboardData | null>(null)
@@ -28,12 +34,12 @@ const hotLoading = ref(false)
 const panelOpen = ref(false)
 const activePanel = ref<PanelKind>('notes')
 const hotKind = ref<HotListKind>('zhihu')
-const hotLists = reactive<Partial<Record<HotListKind, HotListData>>>({})
+const hotLists = reactive<Partial<Record<HotListKind, HotListCacheEntry>>>({})
 
 const visible = computed(() => Boolean(session.value && isStartCloudEnabled()))
 const activeNotes = computed(() => (dashboard.value?.notes ?? []).slice(0, 20))
 const panelTitle = computed(() => (activePanel.value === 'notes' ? '便签' : '热榜'))
-const currentHotList = computed(() => hotLists[hotKind.value])
+const currentHotList = computed(() => hotLists[hotKind.value]?.data)
 const hotItems = computed(() => (currentHotList.value?.data ?? []).slice(0, 20))
 const hotOptions: Array<{ label: string; value: HotListKind }> = [
   { label: '知乎', value: 'zhihu' },
@@ -54,15 +60,25 @@ async function load() {
 
 async function loadHotList(kind = hotKind.value, force = false) {
   if (!isStartCloudEnabled()) return
-  if (hotLists[kind] && !force) return
+  const cached = hotLists[kind]
+  if (cached && !force && !isHotListStale(cached.fetchedAt)) return
   hotLoading.value = true
   try {
-    hotLists[kind] = await fetchHotList(kind)
+    hotLists[kind] = {
+      data: await fetchHotList(kind),
+      fetchedAt: Date.now(),
+    }
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '热榜加载失败')
   } finally {
     hotLoading.value = false
   }
+}
+
+function isHotListStale(fetchedAt: number) {
+  const now = Date.now()
+  if (now - fetchedAt > HOT_LIST_STALE_MS) return true
+  return new Date(now).toDateString() !== new Date(fetchedAt).toDateString()
 }
 
 async function addNote() {
@@ -365,6 +381,7 @@ window.addEventListener('start-account-signed-out', () => {
     border-radius: 20px;
     box-shadow: 0 18px 48px rgb(0 0 0 / 22%);
     backdrop-filter: blur(20px) saturate(1.25);
+    clip-path: inset(0 round 20px);
     transform-origin: right center;
 
     html.colorful & {
@@ -413,15 +430,24 @@ window.addEventListener('start-account-signed-out', () => {
     background: transparent;
     border: 0;
     border-radius: 50%;
+    box-shadow: none;
     transition:
       color 180ms ease,
       background-color 180ms ease,
       transform 180ms ease;
 
+    &::before,
+    &::after {
+      display: none;
+    }
+
     &:hover,
     &:focus-visible {
       color: var(--el-color-primary);
+      outline: none;
       background: color-mix(in srgb, var(--el-color-primary) 10%, transparent);
+      border-radius: 50%;
+      box-shadow: none;
       transform: scale(1.04);
     }
   }
@@ -665,6 +691,50 @@ window.addEventListener('start-account-signed-out', () => {
     &__slide-enter-active .widgets-board__empty {
       transition: none;
       animation: none;
+    }
+  }
+}
+
+@media (width <= 600px) {
+  .widgets-board {
+    &__scrim {
+      backdrop-filter: none;
+    }
+
+    &__drawer {
+      inset: auto 10px 10px;
+      width: calc(100vw - 20px);
+      max-height: min(74vh, 620px);
+      border-radius: 20px;
+      box-shadow:
+        0 18px 44px rgb(0 0 0 / 20%),
+        0 0 0 1px color-mix(in srgb, var(--el-border-color) 42%, transparent);
+      clip-path: inset(0 round 20px);
+      transform-origin: bottom center;
+    }
+
+    &__close {
+      width: 38px;
+      height: 38px;
+      background: transparent !important;
+
+      &:hover,
+      &:focus-visible {
+        background: color-mix(in srgb, var(--el-color-primary) 10%, transparent) !important;
+      }
+    }
+
+    &__list {
+      max-height: calc(74vh - 160px);
+
+      &--hot {
+        max-height: calc(74vh - 205px);
+      }
+    }
+
+    &__slide-enter-from,
+    &__slide-leave-to {
+      transform: translateY(32px) scale(0.985);
     }
   }
 }

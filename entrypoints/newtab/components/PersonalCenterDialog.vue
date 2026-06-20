@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { useWindowSize } from '@vueuse/core'
 import { ElMessage } from 'element-plus'
+import ChevronRightRound from '~icons/ic/round-chevron-right'
 import CloseRound from '~icons/ic/round-close'
 import ConfirmationNumberRound from '~icons/ic/round-confirmation-number'
+import KeyboardArrowLeftRound from '~icons/ic/round-keyboard-arrow-left'
 import RssFeedRound from '~icons/ic/round-rss-feed'
 import StickyNote2Round from '~icons/ic/round-sticky-note-2'
 
@@ -13,6 +16,7 @@ import {
   deleteNote,
   deleteRssSource,
   fetchDashboard,
+  fetchInvites,
   isStartCloudEnabled,
   updateNote,
   validateInviteCode,
@@ -24,6 +28,7 @@ import type { AuthSession } from '@newtab/shared/auth'
 
 const INVITE_ADMIN_EMAIL = 'abo_bb@qq.com'
 const INVITE_CACHE_KEY = 'startpage.invites.v1'
+const MOBILE_BREAKPOINT = 600
 
 type PersonalCenterPage = 'invites' | 'notes' | 'rss'
 
@@ -33,16 +38,26 @@ const props = defineProps<{
 }>()
 
 const { isComposing } = useImeAwareDialog()
+const { width: windowWidth } = useWindowSize({ type: 'visual' })
 const busy = ref(false)
 const dashboard = ref<DashboardData | null>(null)
+const inviteCodes = ref<InviteCode[]>([])
+const inviteMeta = ref({
+  invitedCount: 0,
+  invitePoints: 0,
+  canCreateInvites: false,
+})
 const noteBody = ref('')
 const rssTitle = ref('')
 const rssUrl = ref('')
 const activePage = ref<PersonalCenterPage>('notes')
+const mobileAtMenu = ref(false)
 
+const isMobile = computed(() => windowWidth.value < MOBILE_BREAKPOINT)
 const cloudReady = computed(() => isStartCloudEnabled())
 const isInviteAdmin = computed(() => props.session.email.toLowerCase() === INVITE_ADMIN_EMAIL)
 const currentPageTitle = computed(() => {
+  if (isMobile.value && mobileAtMenu.value) return '个人中心'
   if (activePage.value === 'invites') return '推荐码'
   if (activePage.value === 'rss') return '订阅源'
   return '便签 / 待办'
@@ -104,13 +119,6 @@ function mergeInvites(invites: InviteCode[]) {
   return [...map.values()].sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))
 }
 
-function mergeDashboardInvites(remoteDashboard: DashboardData, cachedInvites: InviteCode[]) {
-  return {
-    ...remoteDashboard,
-    invites: mergeInvites([...(remoteDashboard.invites ?? []), ...cachedInvites]),
-  }
-}
-
 async function validateCachedInvites(email: string, invites: InviteCode[]) {
   const checked = await Promise.all(
     mergeInvites(invites).map(async (invite) => {
@@ -131,22 +139,26 @@ async function loadDashboard() {
   const email = normalizedSessionEmail()
   const cachedInvites = readCachedInvites(email)
   try {
-    const remoteDashboard = await fetchDashboard(email)
-    const validCachedInvites = isInviteAdmin.value
-      ? await validateCachedInvites(email, [...cachedInvites, ...(remoteDashboard.invites ?? [])])
-      : []
-    if (isInviteAdmin.value) writeCachedInvites(email, validCachedInvites)
-    dashboard.value = mergeDashboardInvites(remoteDashboard, validCachedInvites)
+    const [remoteDashboard, remoteInvites] = await Promise.all([
+      fetchDashboard(email),
+      isInviteAdmin.value ? fetchInvites(email) : Promise.resolve(null),
+    ])
+    dashboard.value = remoteDashboard
+    if (remoteInvites) {
+      const invites = mergeInvites(remoteInvites.invites ?? [])
+      inviteCodes.value = invites
+      inviteMeta.value = {
+        invitedCount: remoteInvites.invitedCount,
+        invitePoints: remoteInvites.invitePoints,
+        canCreateInvites: Boolean(remoteInvites.canCreateInvites),
+      }
+      writeCachedInvites(email, invites)
+    }
   } catch (error) {
     if (isInviteAdmin.value && cachedInvites.length) {
-      dashboard.value = {
-        notes: dashboard.value?.notes ?? [],
-        rssSources: dashboard.value?.rssSources ?? [],
-        invitedCount: dashboard.value?.invitedCount ?? 0,
-        invitePoints: dashboard.value?.invitePoints ?? 0,
-        canCreateInvites: true,
-        invites: cachedInvites,
-      }
+      const validCachedInvites = await validateCachedInvites(email, cachedInvites)
+      inviteCodes.value = validCachedInvites.length ? validCachedInvites : cachedInvites
+      inviteMeta.value = { invitedCount: 0, invitePoints: 0, canCreateInvites: true }
     }
     ElMessage.error(error instanceof Error ? error.message : '加载失败')
   } finally {
@@ -169,14 +181,8 @@ async function handleCreateInvite() {
     }
     const cachedInvites = mergeInvites([invite, ...readCachedInvites(email)])
     writeCachedInvites(email, cachedInvites)
-    dashboard.value = {
-      notes: dashboard.value?.notes ?? [],
-      rssSources: dashboard.value?.rssSources ?? [],
-      invitedCount: dashboard.value?.invitedCount ?? 0,
-      invitePoints: dashboard.value?.invitePoints ?? 0,
-      canCreateInvites: true,
-      invites: mergeInvites([invite, ...(dashboard.value?.invites ?? []), ...cachedInvites]),
-    }
+    inviteCodes.value = mergeInvites([invite, ...inviteCodes.value, ...cachedInvites])
+    inviteMeta.value = { ...inviteMeta.value, canCreateInvites: true }
     ElMessage.success(`推荐码：${result.code}`)
     await loadDashboard()
   } catch (error) {
@@ -238,17 +244,32 @@ async function handleDeleteRss(id: string) {
 
 function handleMenuSelect(key: string) {
   activePage.value = key as PersonalCenterPage
+  mobileAtMenu.value = false
 }
 
 function handleClose(close: () => void) {
   close()
 }
 
-watch(model, (visible) => {
-  if (visible) {
-    activePage.value = isInviteAdmin.value ? 'invites' : 'notes'
-    void loadDashboard()
-  }
+function handleBack() {
+  if (isMobile.value && !mobileAtMenu.value) mobileAtMenu.value = true
+}
+
+watch(
+  model,
+  (visible) => {
+    if (visible) {
+      activePage.value = isInviteAdmin.value ? 'invites' : 'notes'
+      mobileAtMenu.value = isMobile.value
+      inviteCodes.value = isInviteAdmin.value ? readCachedInvites(normalizedSessionEmail()) : []
+      void loadDashboard()
+    }
+  },
+  { immediate: true },
+)
+
+watch(isMobile, (mobile) => {
+  if (model.value) mobileAtMenu.value = mobile
 })
 </script>
 
@@ -257,6 +278,10 @@ watch(model, (visible) => {
     v-model="model"
     :width="760"
     class="settings__dialog personal-center settings-container--two-column"
+    :class="[
+      { 'is-mobile': isMobile },
+      { 'is-mobile-main-menu': isMobile && mobileAtMenu },
+    ]"
     draggable
     :show-close="false"
     append-to-body
@@ -264,9 +289,21 @@ watch(model, (visible) => {
     header-class="settings-header noselect"
   >
     <template #header="{ close, titleId }">
-      <div :id="titleId" class="base-dialog-title">
+      <button
+        v-if="isMobile ? !mobileAtMenu : true"
+        class="settings-back-btn"
+        :disabled="!isMobile"
+        @click="handleBack"
+        @keydown.enter="handleBack"
+      >
+        <el-icon color="currentColor" :size="20">
+          <component :is="KeyboardArrowLeftRound" />
+        </el-icon>
+      </button>
+      <div v-if="!(isMobile && mobileAtMenu)" :id="titleId" class="base-dialog-title">
         {{ currentPageTitle }}
       </div>
+      <div v-else style="flex-grow: 1"></div>
       <div
         role="button"
         tabindex="0"
@@ -279,12 +316,8 @@ watch(model, (visible) => {
     </template>
 
     <template #aside>
-      <aside class="settings-aside personal-center__aside">
-        <el-menu
-          :default-active="activePage"
-          class="settings-menu"
-          @select="handleMenuSelect"
-        >
+      <aside v-if="!isMobile" class="settings-aside personal-center__aside">
+        <el-menu :default-active="activePage" class="settings-menu" @select="handleMenuSelect">
           <div class="settings-menu__icon">
             <img src="/favicon.png" alt="Startpage" />
           </div>
@@ -307,7 +340,33 @@ watch(model, (visible) => {
       </aside>
     </template>
 
-    <el-scrollbar class="personal-center__scroll">
+    <aside v-if="isMobile && mobileAtMenu" class="settings-aside personal-center__mobile-menu">
+      <el-menu :default-active="activePage" class="settings-menu" @select="handleMenuSelect">
+        <div class="settings-menu__icon">
+          <span>个人中心</span>
+        </div>
+        <el-menu-item
+          v-for="item in menuItems"
+          :key="item.key"
+          :index="item.key"
+          class="settings-menu-item noselect"
+          tabindex="0"
+          @keydown.enter="$event.currentTarget.click()"
+        >
+          <el-icon>
+            <component :is="item.icon" />
+          </el-icon>
+          <template #title>
+            <span class="menu-title">{{ item.title }}</span>
+          </template>
+          <el-icon class="menu-chevron">
+            <component :is="ChevronRightRound" />
+          </el-icon>
+        </el-menu-item>
+      </el-menu>
+    </aside>
+
+    <el-scrollbar v-else class="personal-center__scroll">
       <el-alert
         v-if="!cloudReady"
         title="还没有配置 VITE_CLOUD_API_URL，云端 Dock、便签和推荐码会在部署后启用。"
@@ -316,27 +375,28 @@ watch(model, (visible) => {
         show-icon
       />
 
-      <div v-else v-loading="busy" class="personal-center__content">
+      <div v-else class="personal-center__content">
+        <div v-if="busy" class="personal-center__loading" aria-label="加载中"></div>
         <section v-if="activePage === 'invites' && isInviteAdmin" class="settings__items-container">
           <div class="settings__item settings__item--horizontal">
             <div>
               <div class="settings__label">推荐码</div>
               <p class="settings__item--note">
-                已邀请 {{ dashboard?.invitedCount ?? 0 }} 人，可无限生成
+                已邀请 {{ inviteMeta.invitedCount }} 人，可无限生成
               </p>
             </div>
             <el-button type="primary" round @click="handleCreateInvite">生成推荐码</el-button>
           </div>
           <div class="personal-center__codes">
             <span
-              v-for="item in dashboard?.invites ?? []"
+              v-for="item in inviteCodes"
               :key="item.code"
               class="personal-center__code"
             >
               {{ item.code }}
               <small>{{ item.status === 'active' ? '可用' : '已用' }}</small>
             </span>
-            <p v-if="!dashboard?.invites?.length" class="personal-center__empty">暂无推荐码</p>
+            <p v-if="!inviteCodes.length" class="personal-center__empty">暂无推荐码</p>
           </div>
         </section>
 
@@ -400,11 +460,6 @@ watch(model, (visible) => {
 
   .settings-header {
     padding: 0 30px;
-
-    .base-dialog-title {
-      flex: 1;
-      text-align: left;
-    }
   }
 }
 
@@ -424,7 +479,25 @@ watch(model, (visible) => {
   }
 
   &__content {
+    position: relative;
+    min-height: 220px;
     padding: 0 20px 20px 30px;
+  }
+
+  &__loading {
+    position: absolute;
+    top: 92px;
+    left: 50%;
+    z-index: 3;
+    width: 34px;
+    height: 34px;
+    pointer-events: none;
+    border: 3px solid color-mix(in srgb, var(--el-color-primary) 18%, transparent);
+    border-top-color: var(--el-color-primary);
+    border-radius: 50%;
+    filter: drop-shadow(0 8px 18px rgb(0 0 0 / 14%));
+    transform: translateX(-50%);
+    animation: personal-center-loading-spin 780ms linear infinite;
   }
 
   &__inline-form {
@@ -503,12 +576,23 @@ watch(model, (visible) => {
     max-width: 93%;
   }
 
-  .personal-center__aside {
-    display: none;
-  }
-
   .personal-center__content {
     padding: 0 20px 20px;
+  }
+
+  .personal-center__mobile-menu {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .personal-center__scroll {
+    height: calc(100% - 50px);
+  }
+}
+
+@keyframes personal-center-loading-spin {
+  to {
+    transform: translateX(-50%) rotate(360deg);
   }
 }
 </style>
