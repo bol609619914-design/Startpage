@@ -15,12 +15,15 @@ import {
   fetchDashboard,
   isStartCloudEnabled,
   updateNote,
+  validateInviteCode,
   type DashboardData,
+  type InviteCode,
 } from '@/shared/cloud/startApi'
 import { useImeAwareDialog } from '@newtab/composables/useImeAwareDialog'
 import type { AuthSession } from '@newtab/shared/auth'
 
 const INVITE_ADMIN_EMAIL = 'abo_bb@qq.com'
+const INVITE_CACHE_KEY = 'startpage.invites.v1'
 
 type PersonalCenterPage = 'invites' | 'notes' | 'rss'
 
@@ -66,12 +69,85 @@ const menuItems = computed(() => [
   },
 ])
 
+function normalizedSessionEmail() {
+  return props.session.email.trim().toLowerCase()
+}
+
+function readCachedInvites(email: string) {
+  if (typeof localStorage === 'undefined') return []
+  try {
+    const cache = JSON.parse(localStorage.getItem(INVITE_CACHE_KEY) || '{}') as Record<string, InviteCode[]>
+    return Array.isArray(cache[email]) ? cache[email] : []
+  } catch {
+    return []
+  }
+}
+
+function writeCachedInvites(email: string, invites: InviteCode[]) {
+  if (typeof localStorage === 'undefined') return
+  const activeInvites = mergeInvites(invites).filter((item) => item.status === 'active')
+  try {
+    const cache = JSON.parse(localStorage.getItem(INVITE_CACHE_KEY) || '{}') as Record<string, InviteCode[]>
+    cache[email] = activeInvites
+    localStorage.setItem(INVITE_CACHE_KEY, JSON.stringify(cache))
+  } catch {
+    // localStorage may be unavailable in strict privacy modes; cloud data still works.
+  }
+}
+
+function mergeInvites(invites: InviteCode[]) {
+  const map = new Map<string, InviteCode>()
+  for (const invite of invites) {
+    if (!invite.code) continue
+    map.set(invite.code, invite)
+  }
+  return [...map.values()].sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))
+}
+
+function mergeDashboardInvites(remoteDashboard: DashboardData, cachedInvites: InviteCode[]) {
+  return {
+    ...remoteDashboard,
+    invites: mergeInvites([...(remoteDashboard.invites ?? []), ...cachedInvites]),
+  }
+}
+
+async function validateCachedInvites(email: string, invites: InviteCode[]) {
+  const checked = await Promise.all(
+    mergeInvites(invites).map(async (invite) => {
+      try {
+        await validateInviteCode(email, invite.code)
+        return invite
+      } catch {
+        return null
+      }
+    }),
+  )
+  return checked.filter((item): item is InviteCode => Boolean(item))
+}
+
 async function loadDashboard() {
   if (!cloudReady.value) return
   busy.value = true
+  const email = normalizedSessionEmail()
+  const cachedInvites = readCachedInvites(email)
   try {
-    dashboard.value = await fetchDashboard(props.session.email)
+    const remoteDashboard = await fetchDashboard(email)
+    const validCachedInvites = isInviteAdmin.value
+      ? await validateCachedInvites(email, [...cachedInvites, ...(remoteDashboard.invites ?? [])])
+      : []
+    if (isInviteAdmin.value) writeCachedInvites(email, validCachedInvites)
+    dashboard.value = mergeDashboardInvites(remoteDashboard, validCachedInvites)
   } catch (error) {
+    if (isInviteAdmin.value && cachedInvites.length) {
+      dashboard.value = {
+        notes: dashboard.value?.notes ?? [],
+        rssSources: dashboard.value?.rssSources ?? [],
+        invitedCount: dashboard.value?.invitedCount ?? 0,
+        invitePoints: dashboard.value?.invitePoints ?? 0,
+        canCreateInvites: true,
+        invites: cachedInvites,
+      }
+    }
     ElMessage.error(error instanceof Error ? error.message : '加载失败')
   } finally {
     busy.value = false
@@ -80,8 +156,9 @@ async function loadDashboard() {
 
 async function handleCreateInvite() {
   if (!isInviteAdmin.value) return
+  const email = normalizedSessionEmail()
   try {
-    const result = await createInvite(props.session.email)
+    const result = await createInvite(email)
     const invite = result.invite ?? {
       code: result.code,
       status: 'active',
@@ -90,13 +167,15 @@ async function handleCreateInvite() {
       createdAt: new Date().toISOString(),
       usedAt: null,
     }
+    const cachedInvites = mergeInvites([invite, ...readCachedInvites(email)])
+    writeCachedInvites(email, cachedInvites)
     dashboard.value = {
       notes: dashboard.value?.notes ?? [],
       rssSources: dashboard.value?.rssSources ?? [],
       invitedCount: dashboard.value?.invitedCount ?? 0,
       invitePoints: dashboard.value?.invitePoints ?? 0,
       canCreateInvites: true,
-      invites: [invite, ...(dashboard.value?.invites ?? []).filter((item) => item.code !== invite.code)],
+      invites: mergeInvites([invite, ...(dashboard.value?.invites ?? []), ...cachedInvites]),
     }
     ElMessage.success(`推荐码：${result.code}`)
     await loadDashboard()
