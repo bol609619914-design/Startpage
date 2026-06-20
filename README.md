@@ -6,6 +6,8 @@ https://start.abobb.site
 
 它优先面向普通浏览器网页使用，而不是浏览器插件。项目提供时钟、搜索、背景、快速链接、Dock、主题设置、账号、便签、热榜、天气、推荐码和云端数据能力。
 
+![Startpage 首页预览](docs/images/startpage-preview.png)
+
 ## 当前定位
 
 - **产品形态**：Vite + Vue 3 + TypeScript 网页应用。

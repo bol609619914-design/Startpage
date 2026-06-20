@@ -180,10 +180,13 @@ window.addEventListener('start-account-signed-out', () => {
           @contextmenu.stop
         >
           <header class="widgets-board__header">
-            <div>
-              <h2>{{ panelTitle }}</h2>
-              <p v-if="activePanel === 'notes'">只保留最近三天</p>
-              <p v-else>{{ currentHotList?.title || '聚合热榜已接入' }}</p>
+            <div class="widgets-board__title">
+              <img src="/favicon.png" alt="Startpage" />
+              <div>
+                <h2>{{ panelTitle }}</h2>
+                <p v-if="activePanel === 'notes'">只保留最近三天</p>
+                <p v-else>{{ currentHotList?.title || '聚合热榜已接入' }}</p>
+              </div>
             </div>
             <button
               type="button"
@@ -229,7 +232,7 @@ window.addEventListener('start-account-signed-out', () => {
               :options="hotOptions"
               block
             />
-            <div v-loading="hotLoading" class="widgets-board__list widgets-board__list--hot">
+            <div class="widgets-board__list widgets-board__list--hot" :aria-busy="hotLoading">
               <a
                 v-for="item in hotItems"
                 :key="`${hotKind}:${item.index}:${item.title}`"
@@ -415,6 +418,22 @@ window.addEventListener('start-account-signed-out', () => {
       margin: 4px 0 0;
       font-size: 13px;
       color: var(--el-text-color-secondary);
+    }
+  }
+
+  &__title {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    min-width: 0;
+
+    img {
+      display: none;
+      flex: 0 0 auto;
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+      border-radius: 50%;
     }
   }
 
@@ -698,19 +717,41 @@ window.addEventListener('start-account-signed-out', () => {
 @media (width <= 600px) {
   .widgets-board {
     &__scrim {
-      backdrop-filter: none;
+      backdrop-filter: blur(1px);
     }
 
     &__drawer {
-      inset: auto 10px 10px;
-      width: calc(100vw - 20px);
-      max-height: min(74vh, 620px);
+      inset: 50% auto auto 50%;
+      width: min(93vw, 430px);
+      max-width: 93vw;
+      max-height: min(78dvh, 640px);
       border-radius: 20px;
       box-shadow:
+        0 0 15px 0 var(--le-bg-color-page-opacity-60),
         0 18px 44px rgb(0 0 0 / 20%),
         0 0 0 1px color-mix(in srgb, var(--el-border-color) 42%, transparent);
       clip-path: inset(0 round 20px);
-      transform-origin: bottom center;
+      transform: translate(-50%, -50%);
+      transform-origin: center;
+    }
+
+    &__header {
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    &__title {
+      gap: 14px;
+
+      img {
+        display: block;
+        width: 36px;
+        height: 36px;
+      }
+
+      h2 {
+        font-size: 25px;
+      }
     }
 
     &__close {
@@ -725,16 +766,16 @@ window.addEventListener('start-account-signed-out', () => {
     }
 
     &__list {
-      max-height: calc(74vh - 160px);
+      max-height: calc(min(78dvh, 640px) - 170px);
 
       &--hot {
-        max-height: calc(74vh - 205px);
+        max-height: calc(min(78dvh, 640px) - 215px);
       }
     }
 
     &__slide-enter-from,
     &__slide-leave-to {
-      transform: translateY(32px) scale(0.985);
+      transform: translate(-50%, calc(-50% + 32px)) scale(0.985);
     }
   }
 }

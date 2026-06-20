@@ -33,8 +33,8 @@ function handleMenuSelect(key: string) {
       @select="handleMenuSelect"
     >
       <div class="settings-menu__icon">
-        <img v-if="!isMobile" src="/favicon.png" alt="Startpage" />
-        <span v-else>{{ t('title') }}</span>
+        <img src="/favicon.png" alt="Startpage" />
+        <span v-if="isMobile">{{ t('title') }}</span>
       </div>
       <el-menu-item
         v-for="item in MENU_ITEMS"

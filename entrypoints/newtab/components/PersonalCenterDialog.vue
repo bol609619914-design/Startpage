@@ -52,10 +52,12 @@ const rssTitle = ref('')
 const rssUrl = ref('')
 const activePage = ref<PersonalCenterPage>('notes')
 const mobileAtMenu = ref(false)
+const pageHistory = ref<PersonalCenterPage[]>([])
 
 const isMobile = computed(() => windowWidth.value < MOBILE_BREAKPOINT)
 const cloudReady = computed(() => isStartCloudEnabled())
 const isInviteAdmin = computed(() => props.session.email.toLowerCase() === INVITE_ADMIN_EMAIL)
+const canGoBack = computed(() => (isMobile.value ? !mobileAtMenu.value : pageHistory.value.length > 0))
 const currentPageTitle = computed(() => {
   if (isMobile.value && mobileAtMenu.value) return '个人中心'
   if (activePage.value === 'invites') return '推荐码'
@@ -242,9 +244,18 @@ async function handleDeleteRss(id: string) {
   }
 }
 
-function handleMenuSelect(key: string) {
-  activePage.value = key as PersonalCenterPage
+function setActivePage(page: PersonalCenterPage) {
+  if (page === activePage.value) {
+    mobileAtMenu.value = false
+    return
+  }
+  if (!isMobile.value) pageHistory.value.push(activePage.value)
+  activePage.value = page
   mobileAtMenu.value = false
+}
+
+function handleMenuSelect(key: string) {
+  setActivePage(key as PersonalCenterPage)
 }
 
 function handleClose(close: () => void) {
@@ -252,7 +263,12 @@ function handleClose(close: () => void) {
 }
 
 function handleBack() {
-  if (isMobile.value && !mobileAtMenu.value) mobileAtMenu.value = true
+  if (isMobile.value) {
+    if (!mobileAtMenu.value) mobileAtMenu.value = true
+    return
+  }
+  const previousPage = pageHistory.value.pop()
+  if (previousPage) activePage.value = previousPage
 }
 
 watch(
@@ -261,6 +277,7 @@ watch(
     if (visible) {
       activePage.value = isInviteAdmin.value ? 'invites' : 'notes'
       mobileAtMenu.value = isMobile.value
+      pageHistory.value = []
       inviteCodes.value = isInviteAdmin.value ? readCachedInvites(normalizedSessionEmail()) : []
       void loadDashboard()
     }
@@ -269,7 +286,10 @@ watch(
 )
 
 watch(isMobile, (mobile) => {
-  if (model.value) mobileAtMenu.value = mobile
+  if (model.value) {
+    mobileAtMenu.value = mobile
+    pageHistory.value = []
+  }
 })
 </script>
 
@@ -292,7 +312,7 @@ watch(isMobile, (mobile) => {
       <button
         v-if="isMobile ? !mobileAtMenu : true"
         class="settings-back-btn"
-        :disabled="!isMobile"
+        :disabled="!canGoBack"
         @click="handleBack"
         @keydown.enter="handleBack"
       >
@@ -343,6 +363,7 @@ watch(isMobile, (mobile) => {
     <aside v-if="isMobile && mobileAtMenu" class="settings-aside personal-center__mobile-menu">
       <el-menu :default-active="activePage" class="settings-menu" @select="handleMenuSelect">
         <div class="settings-menu__icon">
+          <img src="/favicon.png" alt="Startpage" />
           <span>个人中心</span>
         </div>
         <el-menu-item

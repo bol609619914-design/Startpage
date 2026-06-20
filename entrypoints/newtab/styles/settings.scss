@@ -37,10 +37,35 @@
     width: min(93vw, 430px) !important;
     height: min(78dvh, 640px);
     max-height: calc(100dvh - 26px);
+    box-shadow:
+      0 0 15px 0 var(--le-bg-color-page-opacity-60),
+      0 18px 44px rgb(0 0 0 / 20%),
+      0 0 0 1px color-mix(in srgb, var(--el-border-color) 42%, transparent);
   }
 
   &.is-mobile-main-menu {
     height: min(64dvh, 520px);
+
+    .settings-header {
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      z-index: 2;
+      justify-content: flex-end;
+      width: auto;
+      height: 44px;
+      padding: 0;
+      cursor: default;
+
+      .base-dialog-close-btn {
+        width: 44px;
+        height: 44px;
+      }
+    }
+
+    .settings-aside {
+      height: 100%;
+    }
   }
 }
 
@@ -329,10 +354,19 @@
     }
 
     .is-mobile & {
-      padding: 31px 30px 10px;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      padding: 27px 30px 18px;
       font-size: 25px;
+      font-weight: 700;
       line-height: 36px;
       color: var(--el-text-color-primary);
+
+      img {
+        width: 36px;
+        height: 36px;
+      }
     }
   }
 
