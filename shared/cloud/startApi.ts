@@ -77,7 +77,6 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     ...init,
     cache: 'no-store',
     headers: {
-      'Cache-Control': 'no-store',
       'Content-Type': 'application/json',
       ...init.headers,
     },

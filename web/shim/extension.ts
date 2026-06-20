@@ -201,7 +201,7 @@ export const browser: any = {
     onAlarm: createEventTarget(),
   },
   topSites: {
-    get: async (_options?: { includeFavicon?: boolean }) => [] as TopSites.MostVisitedURL[],
+    get: async () => [] as TopSites.MostVisitedURL[],
   },
   bookmarks: {
     get: async (id: string) => [{ id, title: '', children: [] }] as Browser.bookmarks.BookmarkTreeNode[],
