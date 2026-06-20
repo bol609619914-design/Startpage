@@ -462,6 +462,12 @@ window.addEventListener('start-account-signed-out', () => {
       display: none;
     }
 
+    .el-icon {
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+    }
+
     &:hover,
     &:focus-visible {
       color: var(--el-color-primary);
@@ -691,6 +697,17 @@ window.addEventListener('start-account-signed-out', () => {
   &__slide-leave-to {
     opacity: 0;
     transform: translateX(48px) scale(0.985);
+  }
+}
+
+@media (width > 600px) {
+  .widgets-board {
+    &__close {
+      &:hover,
+      &:focus-visible {
+        transform: rotate(90deg) scale(1.04);
+      }
+    }
   }
 }
 

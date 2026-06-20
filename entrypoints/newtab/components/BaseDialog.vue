@@ -190,22 +190,29 @@ const dialogId = computed(() => {
 
   &-close-btn {
     position: absolute;
-    top: 15px;
-    right: 20px;
-    width: 24px;
-    height: 24px;
-    padding: 2px;
-    line-height: 1em;
-    color: var(--el-text-color-regular);
+    top: 3px;
+    right: 14px;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    color: var(--el-text-color-secondary);
     cursor: pointer;
+    background: transparent;
     border-radius: 50%;
-    transition: var(--el-transition-duration-fast) ease-in-out;
+    box-shadow: none;
+    transition:
+      color 180ms ease,
+      background-color 180ms ease,
+      transform 180ms ease;
 
     &:hover,
     &:focus-visible {
-      color: var(--el-text-color-primary);
-      background-color: var(--el-fill-color-blank);
-      transform: rotate(90deg);
+      color: var(--el-color-primary);
+      background: color-mix(in srgb, var(--el-color-primary) 10%, transparent);
+      box-shadow: none;
+      transform: scale(1.04);
     }
 
     &:focus-visible {
@@ -222,8 +229,8 @@ const dialogId = computed(() => {
     }
 
     svg {
-      width: 100%;
-      height: 100%;
+      width: 18px;
+      height: 18px;
     }
   }
 
@@ -231,6 +238,17 @@ const dialogId = computed(() => {
     margin-top: 30px;
     font-size: 28px;
     font-weight: 600;
+  }
+}
+
+@media (width > 600px) {
+  .base-dialog {
+    &-close-btn {
+      &:hover,
+      &:focus-visible {
+        transform: rotate(90deg) scale(1.04);
+      }
+    }
   }
 }
 </style>
