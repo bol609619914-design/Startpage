@@ -256,10 +256,6 @@ window.addEventListener('start-account-signed-out', () => {
 
 <style lang="scss">
 .widgets-board {
-  --p2m-ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
-  --p2m-ease-settle: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --p2m-ease-narrative: cubic-bezier(0.34, 0, 0.14, 1);
-
   &__trigger {
     overflow: visible;
     color: inherit;
@@ -800,148 +796,23 @@ window.addEventListener('start-account-signed-out', () => {
   }
 }
 
-@keyframes widgets-board-note-flip {
-  0% {
-    transform: translateY(0) rotate(0deg) scale(1);
-    animation-timing-function: cubic-bezier(0.34, 0, 0.14, 1); /* --p2m-ease-narrative */
-  }
-
-  20% {
-    transform: translateY(1px) rotate(3deg) scale(0.92);
-    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); /* --p2m-ease-enter */
-  }
-
-  62% {
-    transform: translateY(-2px) rotate(0deg) scale(1.12);
-    animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); /* --p2m-ease-settle */
-  }
-
-  82% {
-    transform: translateY(-1px) rotate(0deg) scale(1.04);
-  }
-
-  100% {
-    transform: translateY(-1px) rotate(0deg) scale(1.08);
-  }
-}
-
-@keyframes widgets-board-note-corner {
-  0% {
-    opacity: 0;
-    transform: translate(-3px, 3px) rotate(-24deg) scale(0.15);
-    animation-timing-function: cubic-bezier(0.34, 0, 0.14, 1); /* --p2m-ease-narrative */
-  }
-
-  20% {
-    opacity: 0.55;
-    transform: translate(-5px, 4px) rotate(-16deg) scale(0.42);
-    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); /* --p2m-ease-enter */
-  }
-
-  64% {
-    opacity: 1;
-    transform: translate(1px, -1px) rotate(5deg) scale(1.16);
-    animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); /* --p2m-ease-settle */
-  }
-
-  100% {
-    opacity: 1;
-    transform: translate(0, 0) rotate(0deg) scale(1);
-  }
-}
-
-@keyframes widgets-board-note-lines {
-  0% {
-    opacity: 0;
-    transform: translateX(7px) scaleX(0.12);
-    animation-timing-function: cubic-bezier(0.34, 0, 0.14, 1); /* --p2m-ease-narrative */
-  }
-
-  20% {
-    opacity: 0.2;
-    transform: translateX(8px) scaleX(0.12);
-    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); /* --p2m-ease-enter */
-  }
-
-  60% {
-    opacity: 0.76;
-    transform: translateX(0) scaleX(1.08);
-    animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); /* --p2m-ease-settle */
-  }
-
-  100% {
-    opacity: 0.68;
-    transform: translateX(0) scaleX(1);
-  }
-}
-
-@keyframes widgets-board-rss-cast {
-  0% {
-    transform: translateY(0) rotate(0deg) scale(1);
-    animation-timing-function: cubic-bezier(0.34, 0, 0.14, 1); /* --p2m-ease-narrative */
-  }
-
-  20% {
-    transform: translateY(1px) rotate(-9deg) scale(0.9);
-    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); /* --p2m-ease-enter */
-  }
-
-  55% {
-    transform: translateY(-3px) rotate(15deg) scale(1.18);
-    animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); /* --p2m-ease-settle */
-  }
-
-  78% {
-    transform: translateY(-2px) rotate(-6deg) scale(1.08);
-  }
-
-  100% {
-    transform: translateY(-2px) rotate(0deg) scale(1.1);
-  }
-}
-
-@keyframes widgets-board-rss-ring {
-  0% {
-    opacity: 0;
-    transform: scale(0.28);
-    animation-timing-function: cubic-bezier(0.34, 0, 0.14, 1); /* --p2m-ease-narrative */
-  }
-
-  20% {
-    opacity: 0.28;
-    transform: scale(0.42);
-    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); /* --p2m-ease-enter */
-  }
-
-  72% {
-    opacity: 0.18;
-    transform: scale(1.18);
-    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); /* --p2m-ease-natural */
-  }
-
-  100% {
-    opacity: 0;
-    transform: scale(1.35);
-  }
-}
-
 @keyframes widgets-board-drawer-accent {
   0% {
     opacity: 0;
     transform: scaleY(0);
-    animation-timing-function: cubic-bezier(0.34, 0, 0.14, 1); /* --p2m-ease-narrative */
+    animation-timing-function: cubic-bezier(0.34, 0, 0.14, 1);
   }
 
   20% {
     opacity: 0.32;
     transform: scaleY(0.18);
-    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); /* --p2m-ease-enter */
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   70% {
     opacity: 0.9;
     transform: scaleY(1.04);
-    animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); /* --p2m-ease-settle */
+    animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   100% {
@@ -954,19 +825,19 @@ window.addEventListener('start-account-signed-out', () => {
   0% {
     opacity: 0;
     transform: translateX(18px) scale(0.98);
-    animation-timing-function: cubic-bezier(0.34, 0, 0.14, 1); /* --p2m-ease-narrative */
+    animation-timing-function: cubic-bezier(0.34, 0, 0.14, 1);
   }
 
   20% {
     opacity: 0;
     transform: translateX(22px) scale(0.97);
-    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); /* --p2m-ease-enter */
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   72% {
     opacity: 1;
     transform: translateX(-2px) scale(1.005);
-    animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); /* --p2m-ease-settle */
+    animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   100% {

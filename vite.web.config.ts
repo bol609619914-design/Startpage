@@ -175,6 +175,12 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: true,
       sourcemap: false,
       chunkSizeWarningLimit: 2000,
+      rollupOptions: {
+        checks: {
+          invalidAnnotation: false,
+          pluginTimings: false,
+        },
+      },
     },
   }
 })
