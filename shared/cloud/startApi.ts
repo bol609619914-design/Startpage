@@ -45,6 +45,7 @@ export interface HotListData {
 export interface DomesticWeatherData {
   success: boolean
   city: string
+  cityCode: string
   temp: number
   type: string
   wind: string
@@ -164,8 +165,12 @@ export async function fetchHotList(type: HotListKind) {
   return request<HotListData>(`/hotlist?${params.toString()}`)
 }
 
-export async function fetchDomesticWeather(cityCode = '101020100') {
-  const params = new URLSearchParams({ cityCode, t: String(Date.now()) })
+export async function fetchDomesticWeather(location?: { latitude: number; longitude: number }) {
+  const params = new URLSearchParams({ t: String(Date.now()) })
+  if (location) {
+    params.set('lat', String(location.latitude))
+    params.set('lon', String(location.longitude))
+  }
   return request<DomesticWeatherData>(`/weather?${params.toString()}`)
 }
 

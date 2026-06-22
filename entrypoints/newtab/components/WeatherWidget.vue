@@ -13,6 +13,7 @@ import WbSunnyOutlined from '~icons/ic/outline-wb-sunny'
 import { fetchDomesticWeather } from '@/shared/cloud/startApi'
 
 type WeatherState = {
+  cityCode: string
   temp: number
   type: string
   tempUnit: string
@@ -44,6 +45,7 @@ function readCachedWeather() {
     const parsed = JSON.parse(raw) as WeatherState
     if (!parsed.updatedAt || Date.now() - parsed.updatedAt > 30 * 60 * 1000) return null
     if (typeof parsed.type !== 'string' || typeof parsed.temp !== 'number') return null
+    if (typeof parsed.cityCode !== 'string') return null
     return parsed
   } catch {
     return null
@@ -56,13 +58,15 @@ function saveCachedWeather(nextWeather: WeatherState) {
 
 async function loadWeather(force = false) {
   if (loading.value) return
-  if (!force && weather.value && Date.now() - weather.value.updatedAt < 30 * 60 * 1000) return
+  if (force) localStorage.removeItem(CACHE_KEY)
 
   loading.value = true
   error.value = false
   try {
-    const data = await fetchDomesticWeather()
+    const location = await getPosition()
+    const data = await fetchDomesticWeather(location)
     const nextWeather: WeatherState = {
+      cityCode: data.cityCode,
       temp: data.temp,
       type: data.type,
       tempUnit: '°C',
@@ -77,6 +81,30 @@ async function loadWeather(force = false) {
   } finally {
     loading.value = false
   }
+}
+
+function getPosition() {
+  return new Promise<{ latitude: number; longitude: number } | undefined>((resolve) => {
+    if (!navigator.geolocation) {
+      resolve(undefined)
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        })
+      },
+      () => resolve(undefined),
+      {
+        enableHighAccuracy: false,
+        maximumAge: 30 * 60 * 1000,
+        timeout: 3500,
+      },
+    )
+  })
 }
 
 function describeWeather(type: string): { icon: Component; text: string } {

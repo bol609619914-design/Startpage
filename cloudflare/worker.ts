@@ -91,12 +91,59 @@ type WeatherPayload = {
   }
 }
 
+type GeoPayload = {
+  city?: string
+  locality?: string
+  principalSubdivision?: string
+}
+
+type WeatherStation = {
+  city: string
+  code: string
+  latitude: number
+  longitude: number
+}
+
 const TEST_INVITE_CODE = 'TEST'
 const INVITE_ADMIN_EMAIL = 'abo_bb@qq.com'
 const DEFAULT_RSS_SOURCE = {
   title: '聚合热榜',
   url: 'https://api.vvhan.com/api/hotlist?type=zhihu',
 }
+const DEFAULT_WEATHER_CITY_CODE = '101020100'
+const KNOWN_WEATHER_STATIONS: WeatherStation[] = [
+  { city: '北京', code: '101010100', latitude: 39.9042, longitude: 116.4074 },
+  { city: '上海', code: '101020100', latitude: 31.2304, longitude: 121.4737 },
+  { city: '天津', code: '101030100', latitude: 39.3434, longitude: 117.3616 },
+  { city: '重庆', code: '101040100', latitude: 29.563, longitude: 106.5516 },
+  { city: '哈尔滨', code: '101050101', latitude: 45.8038, longitude: 126.5349 },
+  { city: '长春', code: '101060101', latitude: 43.8171, longitude: 125.3235 },
+  { city: '沈阳', code: '101070101', latitude: 41.8057, longitude: 123.4315 },
+  { city: '呼和浩特', code: '101080101', latitude: 40.8426, longitude: 111.7492 },
+  { city: '石家庄', code: '101090101', latitude: 38.0428, longitude: 114.5149 },
+  { city: '太原', code: '101100101', latitude: 37.8706, longitude: 112.5489 },
+  { city: '西安', code: '101110101', latitude: 34.3416, longitude: 108.9398 },
+  { city: '济南', code: '101120101', latitude: 36.6512, longitude: 117.1201 },
+  { city: '乌鲁木齐', code: '101130101', latitude: 43.8256, longitude: 87.6168 },
+  { city: '拉萨', code: '101140101', latitude: 29.652, longitude: 91.1721 },
+  { city: '西宁', code: '101150101', latitude: 36.6171, longitude: 101.7782 },
+  { city: '兰州', code: '101160101', latitude: 36.0611, longitude: 103.8343 },
+  { city: '银川', code: '101170101', latitude: 38.4872, longitude: 106.2309 },
+  { city: '郑州', code: '101180101', latitude: 34.7472, longitude: 113.6249 },
+  { city: '南京', code: '101190101', latitude: 32.0603, longitude: 118.7969 },
+  { city: '武汉', code: '101200101', latitude: 30.5928, longitude: 114.3055 },
+  { city: '杭州', code: '101210101', latitude: 30.2741, longitude: 120.1551 },
+  { city: '合肥', code: '101220101', latitude: 31.8206, longitude: 117.2272 },
+  { city: '福州', code: '101230101', latitude: 26.0745, longitude: 119.2965 },
+  { city: '南昌', code: '101240101', latitude: 28.6829, longitude: 115.8582 },
+  { city: '长沙', code: '101250101', latitude: 28.2282, longitude: 112.9388 },
+  { city: '贵阳', code: '101260101', latitude: 26.647, longitude: 106.6302 },
+  { city: '成都', code: '101270101', latitude: 30.5728, longitude: 104.0668 },
+  { city: '广州', code: '101280101', latitude: 23.1291, longitude: 113.2644 },
+  { city: '昆明', code: '101290101', latitude: 25.0389, longitude: 102.7183 },
+  { city: '南宁', code: '101300101', latitude: 22.817, longitude: 108.3669 },
+  { city: '海口', code: '101310101', latitude: 20.044, longitude: 110.1999 },
+]
 
 const jsonHeaders = {
   'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
@@ -113,6 +160,14 @@ function normalizeEmail(email: unknown) {
 function normalizeInviteCode(code: unknown) {
   if (typeof code !== 'string') return ''
   return code.trim().toUpperCase()
+}
+
+function normalizeChinaPlaceName(name: unknown) {
+  if (typeof name !== 'string') return ''
+  return name
+    .trim()
+    .replace(/(省|市|自治区|特别行政区|地区|盟|自治州|区|县)$/u, '')
+    .replace(/\s+/g, '')
 }
 
 function createCorsHeaders(request: Request, env: Env) {
@@ -746,10 +801,8 @@ async function getHotList(request: Request, env: Env, url: URL) {
 }
 
 async function getWeather(request: Request, env: Env, url: URL) {
-  const cityCode = url.searchParams.get('cityCode') || '101020100'
-  if (!/^\d{9}$/.test(cityCode)) {
-    return json(request, env, { error: 'invalidWeatherCity' }, { status: 400 })
-  }
+  const location = parseWeatherLocation(url)
+  const cityCode = location ? await resolveWeatherCityCode(location) : DEFAULT_WEATHER_CITY_CODE
 
   const upstream = await fetch(`http://t.weather.itboy.net/api/weather/city/${cityCode}`, {
     headers: {
@@ -776,6 +829,7 @@ async function getWeather(request: Request, env: Env, url: URL) {
   return json(request, env, {
     success: true,
     city: payload.cityInfo?.city || '上海市',
+    cityCode,
     temp,
     type: forecast?.type || '天气',
     wind: [forecast?.fx, forecast?.fl].filter(Boolean).join(' ') || '',
@@ -783,6 +837,100 @@ async function getWeather(request: Request, env: Env, url: URL) {
     quality: current.quality || '',
     updateTime: payload.cityInfo?.updateTime || '',
   })
+}
+
+function parseWeatherLocation(url: URL) {
+  const lat = Number.parseFloat(url.searchParams.get('lat') || '')
+  const lon = Number.parseFloat(url.searchParams.get('lon') || '')
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null
+  if (lat < -90 || lat > 90 || lon < -180 || lon > 180) return null
+  return { latitude: lat, longitude: lon }
+}
+
+async function resolveWeatherCityCode(location: { latitude: number; longitude: number }) {
+  const nearbyStation = findNearestWeatherStation(location)
+  if (nearbyStation) return nearbyStation.code
+
+  try {
+    const params = new URLSearchParams({
+      latitude: String(location.latitude),
+      longitude: String(location.longitude),
+      localityLanguage: 'zh',
+    })
+    const geo = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?${params.toString()}`, {
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'startpage/1.0',
+      },
+      cf: {
+        cacheTtl: 86400,
+        cacheEverything: true,
+      },
+    })
+    if (!geo.ok) return DEFAULT_WEATHER_CITY_CODE
+
+    const payload = (await geo.json().catch(() => null)) as GeoPayload | null
+    const province = normalizeChinaPlaceName(payload?.principalSubdivision)
+    const city = normalizeChinaPlaceName(payload?.city || payload?.locality)
+    if (!province || !city) return DEFAULT_WEATHER_CITY_CODE
+
+    return (await findWeatherCityCode(province, city)) || DEFAULT_WEATHER_CITY_CODE
+  } catch {
+    return DEFAULT_WEATHER_CITY_CODE
+  }
+}
+
+function findNearestWeatherStation(location: { latitude: number; longitude: number }) {
+  const nearest = KNOWN_WEATHER_STATIONS.map((station) => ({
+    ...station,
+    distance: distanceInKm(location.latitude, location.longitude, station.latitude, station.longitude),
+  })).sort((a, b) => a.distance - b.distance)[0]
+  return nearest && nearest.distance <= 160 ? nearest : null
+}
+
+function distanceInKm(latA: number, lonA: number, latB: number, lonB: number) {
+  const earthRadiusKm = 6371
+  const toRadians = (degree: number) => (degree * Math.PI) / 180
+  const deltaLat = toRadians(latB - latA)
+  const deltaLon = toRadians(lonB - lonA)
+  const a =
+    Math.sin(deltaLat / 2) ** 2 +
+    Math.cos(toRadians(latA)) * Math.cos(toRadians(latB)) * Math.sin(deltaLon / 2) ** 2
+  return 2 * earthRadiusKm * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+}
+
+async function findWeatherCityCode(provinceName: string, cityName: string) {
+  const provinces = await fetchWeatherCityMap('https://www.weather.com.cn/data/city3jdata/china.html')
+  const provinceEntry = Object.entries(provinces).find(([, name]) => normalizeChinaPlaceName(name) === provinceName)
+  if (!provinceEntry) return null
+
+  const provinceCode = provinceEntry[0]
+  const cities = await fetchWeatherCityMap(`https://www.weather.com.cn/data/city3jdata/provshi/${provinceCode}.html`)
+  const cityEntry =
+    Object.entries(cities).find(([, name]) => normalizeChinaPlaceName(name) === cityName) ||
+    Object.entries(cities).find(([, name]) => cityName.includes(normalizeChinaPlaceName(name)))
+  if (!cityEntry) return null
+
+  const cityPrefix = `${provinceCode}${cityEntry[0]}`
+  const stations = await fetchWeatherCityMap(`https://www.weather.com.cn/data/city3jdata/station/${cityPrefix}.html`)
+  const stationEntry =
+    Object.entries(stations).find(([, name]) => normalizeChinaPlaceName(name) === cityName) || Object.entries(stations)[0]
+  return stationEntry ? `${cityPrefix}${stationEntry[0]}` : `${cityPrefix}01`
+}
+
+async function fetchWeatherCityMap(source: string) {
+  const upstream = await fetch(source, {
+    headers: {
+      Accept: 'application/json',
+      'User-Agent': 'startpage/1.0',
+    },
+    cf: {
+      cacheTtl: 86400,
+      cacheEverything: true,
+    },
+  })
+  if (!upstream.ok) return {}
+  return (await upstream.json().catch(() => ({}))) as Record<string, string>
 }
 
 async function createInvite(request: Request, env: Env) {
