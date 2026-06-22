@@ -63,7 +63,7 @@ async function loadWeather(force = false) {
   loading.value = true
   error.value = false
   try {
-    const location = await getPosition()
+    const location = await acquirePosition()
     const data = await fetchDomesticWeather(location)
     const nextWeather: WeatherState = {
       cityCode: data.cityCode,
@@ -83,8 +83,8 @@ async function loadWeather(force = false) {
   }
 }
 
-function getPosition() {
-  return new Promise<{ latitude: number; longitude: number } | undefined>((resolve) => {
+function acquirePosition(): Promise<{ latitude: number; longitude: number } | undefined> {
+  return new Promise((resolve) => {
     if (!navigator.geolocation) {
       resolve(undefined)
       return
@@ -101,19 +101,26 @@ function getPosition() {
       {
         enableHighAccuracy: false,
         maximumAge: 30 * 60 * 1000,
-        timeout: 3500,
+        timeout: 8000,
       },
     )
   })
 }
 
+const weatherIconMap: [string, Component][] = [
+  ['晴', WbSunnyOutlined],
+  ['云', CloudOutlined],
+  ['阴', CloudOutlined],
+  ['雨', GrainOutlined],
+  ['雪', AcUnitOutlined],
+  ['雷', ThunderstormOutlined],
+  ['夜', NightsStayOutlined],
+]
+
 function describeWeather(type: string): { icon: Component; text: string } {
-  if (type.includes('晴')) return { icon: WbSunnyOutlined, text: type }
-  if (type.includes('云') || type.includes('阴')) return { icon: CloudOutlined, text: type }
-  if (type.includes('雨')) return { icon: GrainOutlined, text: type }
-  if (type.includes('雪')) return { icon: AcUnitOutlined, text: type }
-  if (type.includes('雷')) return { icon: ThunderstormOutlined, text: type }
-  if (type.includes('夜')) return { icon: NightsStayOutlined, text: type }
+  for (const [key, icon] of weatherIconMap) {
+    if (type.includes(key)) return { icon, text: type }
+  }
   return { icon: CloudOutlined, text: type || '天气' }
 }
 
@@ -138,7 +145,7 @@ onMounted(() => {
       </template>
       <template v-else>
         <strong>天气</strong>
-        <span>{{ loading ? '获取中' : '线条' }}</span>
+        <span>{{ loading ? '获取中' : '获取失败' }}</span>
       </template>
     </span>
     <span v-if="weather" class="weather-widget__meta">

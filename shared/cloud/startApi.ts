@@ -166,12 +166,13 @@ export async function fetchHotList(type: HotListKind) {
 }
 
 export async function fetchDomesticWeather(location?: { latitude: number; longitude: number }) {
-  const params = new URLSearchParams({ t: String(Date.now()) })
+  const params = new URLSearchParams()
   if (location) {
     params.set('lat', String(location.latitude))
     params.set('lon', String(location.longitude))
   }
-  return request<DomesticWeatherData>(`/weather?${params.toString()}`)
+  const qs = params.toString()
+  return request<DomesticWeatherData>(`/weather${qs ? `?${qs}` : ''}`)
 }
 
 export async function createNote(email: string, body: string) {
