@@ -876,7 +876,6 @@ async function getWeather(request: Request, env: Env, url: URL) {
   let latitude = queryLoc?.latitude ?? cfLoc?.latitude
   let longitude = queryLoc?.longitude ?? cfLoc?.longitude
   let ipCity = ''
-  let needReverseGeocode = !queryLoc // only reverse geocode if coords came from CF/IP (not user-supplied)
 
   if (latitude == null || longitude == null) {
     const fallback = await getFallbackLocation(request)
@@ -902,7 +901,7 @@ async function getWeather(request: Request, env: Env, url: URL) {
 
   const [weatherResp, geoPayload] = await Promise.all([
     weatherPromise,
-    needReverseGeocode && !ipCity ? reverseGeocode({ latitude, longitude }) : Promise.resolve(null),
+    ipCity ? Promise.resolve(null) : reverseGeocode({ latitude, longitude }),
   ])
 
   if (!weatherResp.ok) {
