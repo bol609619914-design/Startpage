@@ -6,7 +6,11 @@ https://start.abobb.site
 
 它优先面向普通浏览器网页使用，而不是浏览器插件。项目提供时钟、搜索、背景、快速链接、Dock、主题设置、账号、便签、热榜、天气、推荐码和云端数据能力。
 
-![Startpage 首页预览](docs/images/startpage-preview.png)
+<img width="1943" height="1162" alt="截屏2026-06-23 18 15 23" src="https://github.com/user-attachments/assets/a08ef04c-e9c0-4267-ab9b-c4a109c8de6d" />
+
+<img width="1943" height="1162" alt="截屏2026-06-22 21 38 23" src="https://github.com/user-attachments/assets/cd79c22a-1e60-471e-a3be-9e2ea32b4f17" />
+
+
 
 ## 当前定位
 
