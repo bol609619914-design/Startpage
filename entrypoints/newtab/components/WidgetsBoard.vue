@@ -641,6 +641,7 @@ window.addEventListener('start-account-signed-out', () => {
   .is-done {
     color: var(--el-text-color-placeholder);
     text-decoration: line-through;
+    opacity: 0.5;
   }
 
   &__fade-enter-active,
