@@ -1,6 +1,5 @@
 {
-  "buildCommand": "pnpm build:web",
+  "buildCommand": "vite build --config vite.web.config.ts",
   "outputDirectory": "dist-web",
-  "framework": null,
   "installCommand": "pnpm install"
 }
