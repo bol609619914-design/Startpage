@@ -1,0 +1,6 @@
+{
+  "buildCommand": "pnpm build:web",
+  "outputDirectory": "dist-web",
+  "framework": null,
+  "installCommand": "pnpm install"
+}

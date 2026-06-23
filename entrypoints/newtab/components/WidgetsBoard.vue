@@ -33,7 +33,6 @@ const loading = ref(false)
 const hotLoading = ref(false)
 const panelOpen = ref(false)
 const activePanel = ref<PanelKind>('notes')
-const localDone = reactive<Record<string, boolean>>({})
 const hotKind = ref<HotListKind>('zhihu')
 const hotLists = reactive<Partial<Record<HotListKind, HotListCacheEntry>>>({})
 
@@ -96,8 +95,14 @@ async function addNote() {
 }
 
 async function toggleNote(id: string, done: number | boolean) {
-  const btn = document.querySelector(`[data-note-id="${id}"]`)
-  if (btn) btn.classList.toggle('is-done')
+  if (!session.value) return
+  try {
+    await updateNote(session.value.email, id, { done: !done })
+    ElMessage.success(`已标记${!done ? '完成' : '未完成'}`)
+    await load()
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '更新失败')
+  }
 }
 
 function openPanel(kind: PanelKind) {
@@ -209,11 +214,10 @@ window.addEventListener('start-account-signed-out', () => {
                 v-for="note in activeNotes"
                 :key="note.id"
                 class="widgets-board__note"
-                :data-note-id="note.id"
                 type="button"
                 @click="toggleNote(note.id, note.done)"
               >
-                <span class="widgets-board__note-body">
+                <span class="widgets-board__note-body" :class="{ 'is-done': Boolean(note.done) }">
                   {{ note.body || note.title }}
                 </span>
                 <time class="widgets-board__note-date">{{ formatNoteDate(note) }}</time>
@@ -632,10 +636,6 @@ window.addEventListener('start-account-signed-out', () => {
   }
 
   .is-done {
-    opacity: 0.5;
-  }
-
-  .is-done .widgets-board__note-body {
     color: var(--el-text-color-placeholder);
     text-decoration: line-through;
   }
