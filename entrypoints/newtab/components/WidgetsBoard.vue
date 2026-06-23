@@ -96,16 +96,8 @@ async function addNote() {
 }
 
 async function toggleNote(id: string, done: number | boolean) {
-  if (!session.value) return
-  const newDone = !done
-  localDone[id] = newDone
-  try {
-    await updateNote(session.value.email, id, { done: newDone })
-    await load()
-  } catch (error) {
-    localDone[id] = !newDone
-    ElMessage.error(error instanceof Error ? error.message : '更新失败')
-  }
+  const btn = document.querySelector(`[data-note-id="${id}"]`)
+  if (btn) btn.classList.toggle('is-done')
 }
 
 function openPanel(kind: PanelKind) {
@@ -217,10 +209,11 @@ window.addEventListener('start-account-signed-out', () => {
                 v-for="note in activeNotes"
                 :key="note.id"
                 class="widgets-board__note"
+                :data-note-id="note.id"
                 type="button"
                 @click="toggleNote(note.id, note.done)"
               >
-                <span class="widgets-board__note-body" :class="{ 'is-done': localDone[note.id] ?? Boolean(note.done) }">
+                <span class="widgets-board__note-body">
                   {{ note.body || note.title }}
                 </span>
                 <time class="widgets-board__note-date">{{ formatNoteDate(note) }}</time>
@@ -639,9 +632,12 @@ window.addEventListener('start-account-signed-out', () => {
   }
 
   .is-done {
+    opacity: 0.5;
+  }
+
+  .is-done .widgets-board__note-body {
     color: var(--el-text-color-placeholder);
     text-decoration: line-through;
-    opacity: 0.5;
   }
 
   &__fade-enter-active,
