@@ -33,6 +33,7 @@ const loading = ref(false)
 const hotLoading = ref(false)
 const panelOpen = ref(false)
 const activePanel = ref<PanelKind>('notes')
+const localDone = reactive<Record<string, boolean>>({})
 const hotKind = ref<HotListKind>('zhihu')
 const hotLists = reactive<Partial<Record<HotListKind, HotListCacheEntry>>>({})
 
@@ -96,10 +97,13 @@ async function addNote() {
 
 async function toggleNote(id: string, done: number | boolean) {
   if (!session.value) return
+  const newDone = !done
+  localDone[id] = newDone
   try {
-    await updateNote(session.value.email, id, { done: !done })
+    await updateNote(session.value.email, id, { done: newDone })
     await load()
   } catch (error) {
+    localDone[id] = !newDone
     ElMessage.error(error instanceof Error ? error.message : '更新失败')
   }
 }
@@ -216,7 +220,7 @@ window.addEventListener('start-account-signed-out', () => {
                 type="button"
                 @click="toggleNote(note.id, note.done)"
               >
-                <span class="widgets-board__note-body" :class="{ 'is-done': Boolean(note.done) }">
+                <span class="widgets-board__note-body" :class="{ 'is-done': localDone[note.id] ?? Boolean(note.done) }">
                   {{ note.body || note.title }}
                 </span>
                 <time class="widgets-board__note-date">{{ formatNoteDate(note) }}</time>

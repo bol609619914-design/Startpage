@@ -53,6 +53,7 @@ const rssUrl = ref('')
 const activePage = ref<PersonalCenterPage>('notes')
 const mobileAtMenu = ref(false)
 const pageHistory = ref<PersonalCenterPage[]>([])
+const localDone = reactive<Record<string, boolean>>({})
 
 const isMobile = computed(() => windowWidth.value < MOBILE_BREAKPOINT)
 const cloudReady = computed(() => isStartCloudEnabled())
@@ -205,10 +206,13 @@ async function handleAddNote() {
 }
 
 async function handleToggleNote(id: string, done: number | boolean) {
+  const newDone = !done
+  localDone[id] = newDone
   try {
-    await updateNote(props.session.email, id, { done: !done })
+    await updateNote(props.session.email, id, { done: newDone })
     await loadDashboard()
   } catch (error) {
+    localDone[id] = !newDone
     ElMessage.error(error instanceof Error ? error.message : '更新失败')
   }
 }
@@ -435,7 +439,7 @@ watch(isMobile, (mobile) => {
                 :model-value="Boolean(note.done)"
                 @change="handleToggleNote(note.id, note.done)"
               >
-                <span :class="{ 'is-done': Boolean(note.done) }">{{ note.body || note.title }}</span>
+                <span :class="{ 'is-done': localDone[note.id] ?? Boolean(note.done) }">{{ note.body || note.title }}</span>
               </el-checkbox>
               <el-button text @click="handleDeleteNote(note.id)">删除</el-button>
             </div>
