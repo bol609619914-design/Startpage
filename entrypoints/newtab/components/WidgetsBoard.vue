@@ -25,6 +25,7 @@ type HotListCacheEntry = {
 }
 
 const HOT_LIST_STALE_MS = 15 * 60 * 1000
+const DONE_STYLE = { color: 'var(--el-text-color-placeholder)', textDecoration: 'line-through' }
 
 const session = ref<AuthSession | null>(null)
 const dashboard = ref<DashboardData | null>(null)
@@ -86,9 +87,12 @@ async function addNote() {
   const body = noteBody.value.trim()
   if (!body) return
   try {
-    await createNote(session.value.email, body)
+    const result = await createNote(session.value.email, body)
     noteBody.value = ''
-    await load()
+    const notes = dashboard.value?.notes
+    if (notes) {
+      notes.unshift({ id: result.note.id, title: result.note.title, body: result.note.body, done: 0 })
+    }
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '保存失败')
   }
@@ -96,10 +100,12 @@ async function addNote() {
 
 async function toggleNote(id: string, done: number | boolean) {
   if (!session.value) return
+  const note = dashboard.value?.notes?.find((n) => n.id === id)
+  if (note) note.done = done ? 0 : 1
   try {
     await updateNote(session.value.email, id, { done: !done })
-    await load()
   } catch (error) {
+    if (note) note.done = done ? 1 : 0
     ElMessage.error(error instanceof Error ? error.message : '更新失败')
   }
 }
@@ -218,7 +224,7 @@ window.addEventListener('start-account-signed-out', () => {
               >
                 <span
                   class="widgets-board__note-body"
-                  :style="note.done ? { color: 'var(--el-text-color-placeholder)', textDecoration: 'line-through' } : {}"
+                  :style="note.done ? DONE_STYLE : null"
                 >
                   {{ note.body || note.title }}
                 </span>
@@ -564,9 +570,6 @@ window.addEventListener('start-account-signed-out', () => {
     font-size: 14px;
     line-height: 1.5;
     overflow-wrap: anywhere;
-    transition:
-      color 200ms ease,
-      text-decoration 200ms ease;
   }
 
   &__note-date {
@@ -635,11 +638,6 @@ window.addEventListener('start-account-signed-out', () => {
     margin: 16px 0 0;
     font-size: 14px;
     color: var(--el-text-color-placeholder);
-  }
-
-  .is-done {
-    color: var(--el-text-color-placeholder);
-    text-decoration: line-through;
   }
 
   &__fade-enter-active,

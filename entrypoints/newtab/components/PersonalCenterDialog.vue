@@ -29,6 +29,7 @@ import type { AuthSession } from '@newtab/shared/auth'
 const INVITE_ADMIN_EMAIL = 'abo_bb@qq.com'
 const INVITE_CACHE_KEY = 'startpage.invites.v1'
 const MOBILE_BREAKPOINT = 600
+const DONE_STYLE = { color: 'var(--el-text-color-placeholder)', textDecoration: 'line-through' }
 
 type PersonalCenterPage = 'invites' | 'notes' | 'rss'
 
@@ -196,28 +197,34 @@ async function handleAddNote() {
   const body = noteBody.value.trim()
   if (!body) return
   try {
-    await createNote(props.session.email, body)
+    const result = await createNote(props.session.email, body)
     noteBody.value = ''
-    await loadDashboard()
+    const notes = dashboard.value?.notes
+    if (notes) notes.unshift({ id: result.note.id, title: result.note.title, body: result.note.body, done: 0 })
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '保存失败')
   }
 }
 
 async function handleToggleNote(id: string, done: number | boolean) {
+  const note = dashboard.value?.notes?.find((n) => n.id === id)
+  if (note) note.done = done ? 0 : 1
   try {
     await updateNote(props.session.email, id, { done: !done })
-    await loadDashboard()
   } catch (error) {
+    if (note) note.done = done ? 1 : 0
     ElMessage.error(error instanceof Error ? error.message : '更新失败')
   }
 }
 
 async function handleDeleteNote(id: string) {
+  const notes = dashboard.value?.notes
+  const idx = notes?.findIndex((n) => n.id === id) ?? -1
+  const removed = idx >= 0 ? notes!.splice(idx, 1)[0] : null
   try {
     await deleteNote(props.session.email, id)
-    await loadDashboard()
   } catch (error) {
+    if (removed && notes) notes.splice(idx, 0, removed)
     ElMessage.error(error instanceof Error ? error.message : '删除失败')
   }
 }
@@ -226,20 +233,24 @@ async function handleAddRss() {
   const url = rssUrl.value.trim()
   if (!url) return
   try {
-    await createRssSource(props.session.email, rssTitle.value.trim(), url)
+    const result = await createRssSource(props.session.email, rssTitle.value.trim(), url)
     rssTitle.value = ''
     rssUrl.value = ''
-    await loadDashboard()
+    const sources = dashboard.value?.rssSources
+    if (sources) sources.unshift({ id: result.source.id, title: result.source.title, url: result.source.url })
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '保存失败')
   }
 }
 
 async function handleDeleteRss(id: string) {
+  const sources = dashboard.value?.rssSources
+  const idx = sources?.findIndex((s) => s.id === id) ?? -1
+  const removed = idx >= 0 ? sources!.splice(idx, 1)[0] : null
   try {
     await deleteRssSource(props.session.email, id)
-    await loadDashboard()
   } catch (error) {
+    if (removed && sources) sources.splice(idx, 0, removed)
     ElMessage.error(error instanceof Error ? error.message : '删除失败')
   }
 }
@@ -435,7 +446,7 @@ watch(isMobile, (mobile) => {
                 :model-value="Boolean(note.done)"
                 @change="handleToggleNote(note.id, note.done)"
               >
-                <span :style="note.done ? { color: 'var(--el-text-color-placeholder)', textDecoration: 'line-through' } : {}">{{ note.body || note.title }}</span>
+                <span :style="note.done ? DONE_STYLE : null">{{ note.body || note.title }}</span>
               </el-checkbox>
               <el-button text @click="handleDeleteNote(note.id)">删除</el-button>
             </div>
@@ -584,11 +595,6 @@ watch(isMobile, (mobile) => {
     margin: 10px 0 0;
     font-size: 13px;
     color: var(--el-text-color-placeholder);
-  }
-
-  .is-done {
-    color: var(--el-text-color-placeholder);
-    text-decoration: line-through;
   }
 }
 
