@@ -217,7 +217,10 @@ window.addEventListener('start-account-signed-out', () => {
                 type="button"
                 @click="toggleNote(note.id, note.done)"
               >
-                <span class="widgets-board__note-body" :class="{ 'is-done': Boolean(note.done) }">
+                <span
+                  class="widgets-board__note-body"
+                  :style="note.done ? { color: 'red', textDecoration: 'line-through' } : {}"
+                >
                   {{ note.body || note.title }}
                 </span>
                 <time class="widgets-board__note-date">{{ formatNoteDate(note) }}</time>
