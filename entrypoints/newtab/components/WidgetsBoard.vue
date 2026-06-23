@@ -98,7 +98,6 @@ async function toggleNote(id: string, done: number | boolean) {
   if (!session.value) return
   try {
     await updateNote(session.value.email, id, { done: !done })
-    ElMessage.success(`已标记${!done ? '完成' : '未完成'}`)
     await load()
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '更新失败')
@@ -219,7 +218,7 @@ window.addEventListener('start-account-signed-out', () => {
               >
                 <span
                   class="widgets-board__note-body"
-                  :style="note.done ? { color: 'red', textDecoration: 'line-through' } : {}"
+                  :style="note.done ? { color: 'var(--el-text-color-placeholder)', textDecoration: 'line-through' } : {}"
                 >
                   {{ note.body || note.title }}
                 </span>

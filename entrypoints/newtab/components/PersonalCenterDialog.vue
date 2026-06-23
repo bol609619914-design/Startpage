@@ -435,7 +435,7 @@ watch(isMobile, (mobile) => {
                 :model-value="Boolean(note.done)"
                 @change="handleToggleNote(note.id, note.done)"
               >
-                <span :class="{ 'is-done': Boolean(note.done) }">{{ note.body || note.title }}</span>
+                <span :style="note.done ? { color: 'var(--el-text-color-placeholder)', textDecoration: 'line-through' } : {}">{{ note.body || note.title }}</span>
               </el-checkbox>
               <el-button text @click="handleDeleteNote(note.id)">删除</el-button>
             </div>
