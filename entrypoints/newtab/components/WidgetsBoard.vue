@@ -94,15 +94,16 @@ async function addNote() {
   }
 }
 
-async function toggleNote(note: StartNote) {
+async function toggleNote(id: string, done: number | boolean) {
   if (!session.value) return
-  const newDone = !note.done
-  // 乐观更新：立即反映到 UI
+  const notes = dashboard.value?.notes
+  const note = notes?.find((n) => n.id === id)
+  if (!note) return
+  const newDone = !done
   note.done = newDone ? 1 : 0
   try {
-    await updateNote(session.value.email, note.id, { done: newDone })
+    await updateNote(session.value.email, id, { done: newDone })
   } catch (error) {
-    // 失败时回滚
     note.done = newDone ? 0 : 1
     ElMessage.error(error instanceof Error ? error.message : '更新失败')
   }
@@ -218,7 +219,7 @@ window.addEventListener('start-account-signed-out', () => {
                 :key="note.id"
                 class="widgets-board__note"
                 type="button"
-                @click="toggleNote(note)"
+                @click="toggleNote(note.id, note.done)"
               >
                 <span class="widgets-board__note-body" :class="{ 'is-done': Boolean(note.done) }">
                   {{ note.body || note.title }}
