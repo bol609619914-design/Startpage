@@ -94,12 +94,16 @@ async function addNote() {
   }
 }
 
-async function toggleNote(id: string, done: number | boolean) {
+async function toggleNote(note: StartNote) {
   if (!session.value) return
+  const newDone = !note.done
+  // 乐观更新：立即反映到 UI
+  note.done = newDone ? 1 : 0
   try {
-    await updateNote(session.value.email, id, { done: !done })
-    await load()
+    await updateNote(session.value.email, note.id, { done: newDone })
   } catch (error) {
+    // 失败时回滚
+    note.done = newDone ? 0 : 1
     ElMessage.error(error instanceof Error ? error.message : '更新失败')
   }
 }
@@ -214,7 +218,7 @@ window.addEventListener('start-account-signed-out', () => {
                 :key="note.id"
                 class="widgets-board__note"
                 type="button"
-                @click="toggleNote(note.id, note.done)"
+                @click="toggleNote(note)"
               >
                 <span class="widgets-board__note-body" :class="{ 'is-done': Boolean(note.done) }">
                   {{ note.body || note.title }}
@@ -561,6 +565,9 @@ window.addEventListener('start-account-signed-out', () => {
     font-size: 14px;
     line-height: 1.5;
     overflow-wrap: anywhere;
+    transition:
+      color 200ms ease,
+      text-decoration 200ms ease;
   }
 
   &__note-date {
