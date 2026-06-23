@@ -204,13 +204,11 @@ async function handleAddNote() {
   }
 }
 
-async function handleToggleNote(note: { id: string; done: number | boolean }) {
-  const newDone = !note.done
-  note.done = newDone ? 1 : 0
+async function handleToggleNote(id: string, done: number | boolean) {
   try {
-    await updateNote(props.session.email, note.id, { done: newDone })
+    await updateNote(props.session.email, id, { done: !done })
+    await loadDashboard()
   } catch (error) {
-    note.done = newDone ? 0 : 1
     ElMessage.error(error instanceof Error ? error.message : '更新失败')
   }
 }
@@ -435,7 +433,7 @@ watch(isMobile, (mobile) => {
             <div v-for="note in dashboard?.notes ?? []" :key="note.id" class="personal-center__row">
               <el-checkbox
                 :model-value="Boolean(note.done)"
-                @change="handleToggleNote(note)"
+                @change="handleToggleNote(note.id, note.done)"
               >
                 <span :class="{ 'is-done': Boolean(note.done) }">{{ note.body || note.title }}</span>
               </el-checkbox>

@@ -96,15 +96,10 @@ async function addNote() {
 
 async function toggleNote(id: string, done: number | boolean) {
   if (!session.value) return
-  const notes = dashboard.value?.notes
-  const note = notes?.find((n) => n.id === id)
-  if (!note) return
-  const newDone = !done
-  note.done = newDone ? 1 : 0
   try {
-    await updateNote(session.value.email, id, { done: newDone })
+    await updateNote(session.value.email, id, { done: !done })
+    await load()
   } catch (error) {
-    note.done = newDone ? 0 : 1
     ElMessage.error(error instanceof Error ? error.message : '更新失败')
   }
 }
