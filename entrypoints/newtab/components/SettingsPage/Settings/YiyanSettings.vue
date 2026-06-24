@@ -43,7 +43,7 @@ const currentProviderNote = computed(() => {
         <div class="settings__label">{{ t('yiyan.provider') }}</div>
         <el-select
           v-model="settings.yiyan.provider"
-          style="width: 180px"
+          class="settings__select--yiyan-provider"
           fit-input-width
           :show-arrow="false"
         >
@@ -80,6 +80,8 @@ const currentProviderNote = computed(() => {
 
 <style lang="scss">
 .yiyan-textarea {
+  width: 100%;
+
   .el-textarea__inner {
     padding: 10px 15px;
     margin: 8px 0;

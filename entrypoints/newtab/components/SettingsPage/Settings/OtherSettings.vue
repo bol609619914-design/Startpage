@@ -414,7 +414,7 @@ function changeLanguage(lang: string) {
       <div class="settings__label">{{ t('other.language') }}</div>
       <el-select
         v-model="currentLanguage"
-        style="width: 183px"
+        class="settings__select--language"
         popper-class="settings-item-popper"
         @change="changeLanguage"
         :show-arrow="false"
