@@ -198,7 +198,7 @@ const beforeMonetChange = async () => {
       <div class="settings__theme">
         <el-select
           v-model="settings.theme.primaryColor"
-          style="width: 183px"
+          class="settings__select--theme-color"
           popper-class="settings-item-popper"
           :show-arrow="false"
           :disabled="settings.theme.monetColor"

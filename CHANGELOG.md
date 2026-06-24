@@ -1,5 +1,19 @@
 # 更新日志
 
+## v3.2.5
+
+### 🐛 修复
+- 修复移动端搜索框不居中的问题
+- 修复移动端设置页面 select/input 组件溢出的问题
+- 优化移动端设置项布局，label + switch 保持同一行显示
+- 将各设置组件的 inline width 样式改为 CSS class，统一管理
+
+### 💄 样式优化
+- 移动端搜索框宽度改为 100%，增加左右 padding
+- 移动端设置项容器 padding 缩小，增加可用宽度
+- 移动端 select/input/button-group 支持换行显示
+- 新增移动端专用 CSS 类：settings__select--*、settings__input--*
+
 ## v3.2.4
 
 ### ✨ 新功能

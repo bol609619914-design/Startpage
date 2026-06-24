@@ -106,7 +106,7 @@ function handleNewStyleChange(val: string | number | boolean) {
         <div class="settings__label">{{ t('clock.weight.title') }}</div>
         <el-select
           v-model="settings.clock.weight.time"
-          style="width: 160px"
+          class="settings__select--clock-weight"
           popper-class="settings-item-popper"
           :show-arrow="false"
         >
@@ -122,7 +122,7 @@ function handleNewStyleChange(val: string | number | boolean) {
         <div class="settings__label">{{ t('clock.weight.dateTitle') }}</div>
         <el-select
           v-model="settings.clock.weight.date"
-          style="width: 160px"
+          class="settings__select--clock-weight"
           popper-class="settings-item-popper"
           :show-arrow="false"
         >

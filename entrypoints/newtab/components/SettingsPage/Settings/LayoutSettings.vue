@@ -42,7 +42,7 @@ function selectActionBtn(pos: ActionBtnPosition) {
       <div class="settings__label">{{ t('layout.mainPosition.label') }}</div>
       <el-select
         v-model="settings.layout.mainPosition.type"
-        style="width: 150px"
+        class="settings__select--main-position"
         popper-class="settings-item-popper"
         :show-arrow="false"
         fit-input-width

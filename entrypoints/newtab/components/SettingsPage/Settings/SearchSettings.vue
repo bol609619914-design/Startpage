@@ -43,7 +43,7 @@ const openSearchEnginePreference = inject(OPEN_SEARCH_ENGINE_PREFERENCE)
         </div>
         <el-select
           v-model="settings.search.suggestionAPI"
-          style="width: 150px"
+          class="settings__select--suggestion-api"
           fit-input-width
           :show-arrow="false"
         >
@@ -106,7 +106,7 @@ const openSearchEnginePreference = inject(OPEN_SEARCH_ENGINE_PREFERENCE)
         <el-input
           v-model="settings.search.placeholder"
           :placeholder="t('newtab:search.placeholder')"
-          style="width: 240px"
+          class="settings__input--placeholder"
         />
       </div>
     </template>

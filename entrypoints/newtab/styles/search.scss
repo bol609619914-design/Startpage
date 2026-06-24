@@ -196,13 +196,19 @@
 }
 
 @media (width <= 600px) {
+  .search-box {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0 16px;
+  }
+
   .search-box__form {
     --height: 44px;
-    --width: 75vw;
+    --width: 100%;
 
     &:hover:not(.search-box__form--focus),
     &.search-box__form--focus {
-      --width: 85vw;
+      --width: 100%;
     }
   }
 }
