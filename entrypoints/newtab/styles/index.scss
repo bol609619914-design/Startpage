@@ -15,7 +15,6 @@
 
 html {
   background-color: var(--el-bg-color-page);
-  text-rendering: optimizeLegibility;
   text-rendering: geometricPrecision;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -109,5 +108,15 @@ html.dialog-acrylic {
 
   100% {
     opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }

@@ -251,11 +251,15 @@ defineExpose({ hide, showEngineToast })
 }
 
 .engine-toast-enter-active {
-  transition: all 0.1s ease-out;
+  transition:
+    opacity 0.1s ease-out,
+    transform 0.1s ease-out;
 }
 
 .engine-toast-leave-active {
-  transition: all 0.1s ease-in;
+  transition:
+    opacity 0.1s ease-in,
+    transform 0.1s ease-in;
 }
 
 .engine-toast-enter-from {

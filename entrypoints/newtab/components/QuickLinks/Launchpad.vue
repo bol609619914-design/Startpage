@@ -1232,7 +1232,9 @@ onBeforeUnmount(() => {
     margin-bottom: 8px;
     overflow: hidden;
     border-radius: 18px;
-    transition: 0.15s ease;
+    transition:
+      background-color 0.15s ease,
+      transform 0.15s ease;
 
     @media (width <= 800px) {
       width: 64px;
@@ -1342,9 +1344,7 @@ onBeforeUnmount(() => {
 /* ---- 入场/离场动画 ---- */
 .launchpad-fade-enter-active,
 .launchpad-fade-leave-active {
-  transition:
-    opacity 0.3s ease,
-    backdrop-filter 0.3s ease;
+  transition: opacity 0.3s ease;
 
   .launchpad-wrapper {
     transition: transform 0.3s ease;

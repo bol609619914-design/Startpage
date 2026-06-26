@@ -10,7 +10,10 @@
   color: var(--el-text-color-secondary);
   background-color: var(--el-bg-color-overlay);
   border-radius: 100px;
-  transition: var(--el-transition-duration-fast) ease-in-out;
+  transition:
+    color var(--el-transition-duration-fast) ease-in-out,
+    background-color var(--el-transition-duration-fast) ease-in-out,
+    box-shadow var(--el-transition-duration-fast) ease-in-out;
 
   &--top-right {
     inset: 20px 30px auto auto;
@@ -65,7 +68,9 @@
   font-size: 20px;
   line-height: 1em;
   cursor: pointer;
-  transition: var(--el-transition-duration-fast) ease-in-out;
+  transition:
+    color var(--el-transition-duration-fast) ease-in-out,
+    transform var(--el-transition-duration-fast) ease-in-out;
 
   &:hover,
   &:focus-visible {

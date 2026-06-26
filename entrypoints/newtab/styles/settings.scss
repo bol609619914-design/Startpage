@@ -131,7 +131,9 @@
     border: none;
     border-radius: 15px;
     box-shadow: var(--el-box-shadow-light);
-    transition: var(--el-transition-duration-fast) ease;
+    transition:
+      color var(--el-transition-duration-fast) ease,
+      background-color var(--el-transition-duration-fast) ease;
 
     html.colorful & {
       background-color: var(--el-color-primary-light-8);
@@ -316,7 +318,9 @@
 }
 
 .settings__group {
-  transition: var(--el-transition-duration-fast) ease;
+  transition:
+    padding var(--el-transition-duration-fast) ease,
+    background-color var(--el-transition-duration-fast) ease;
 
   &.active {
     padding: 10px 20px;
@@ -514,7 +518,9 @@
     --el-menu-hover-bg-color: var(--le-fill-color-dark-opacity-20);
     position: relative;
     border-radius: 10px;
-    transition: var(--el-transition-duration-fast) ease;
+    transition:
+      background-color var(--el-transition-duration-fast) ease,
+      color var(--el-transition-duration-fast) ease;
 
     .is-mobile & {
       --el-menu-base-level-padding: 30px;
@@ -547,7 +553,7 @@
       position: absolute;
       right: 20px;
       color: var(--el-text-color-secondary);
-      transition: var(--el-transition-duration-fast) ease;
+      transition: color var(--el-transition-duration-fast) ease;
     }
 
     &:not(.is-active):hover .menu-chevron {
@@ -599,7 +605,9 @@
   &-left-leave-active,
   &-right-enter-active,
   &-right-leave-active {
-    transition: all var(--el-transition-duration-fast) cubic-bezier(0.4, 0, 0.2, 1);
+    transition:
+      opacity var(--el-transition-duration-fast) cubic-bezier(0.4, 0, 0.2, 1),
+      transform var(--el-transition-duration-fast) cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   &-left-enter-from,

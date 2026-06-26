@@ -163,10 +163,8 @@ async function copyToClipboard() {
   color: var(--el-fill-color-darker);
   text-align: center;
   border-radius: 20px;
-  transition: bottom var(--el-transition-duration-fast) ease;
   transition:
     background-color var(--el-transition-duration-fast) ease,
-    backdrop-filter var(--el-transition-duration-fast) ease,
     color var(--el-transition-duration-fast) ease,
     bottom var(--el-transition-duration-fast) ease;
 
@@ -186,7 +184,10 @@ async function copyToClipboard() {
     border: none;
     border-radius: 50%;
     opacity: 0;
-    transition: all var(--el-transition-duration-fast) ease;
+    transition:
+      color var(--el-transition-duration-fast) ease,
+      background-color var(--el-transition-duration-fast) ease,
+      opacity var(--el-transition-duration-fast) ease;
 
     &:hover,
     &:focus-visible {
@@ -308,8 +309,9 @@ async function copyToClipboard() {
   filter: blur(5px);
   transform: scale(1);
   transform-origin: center;
-  transition: 0.3s ease-out;
-  will-change: transform, opacity;
+  transition:
+    opacity 0.3s ease-out,
+    transform 0.3s ease-out;
 }
 
 .ripple-enter-from {
