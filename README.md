@@ -8,9 +8,6 @@ https://start.abobb.site
 
 <img width="1943" height="1162" alt="截屏2026-06-23 18 15 23" src="https://github.com/user-attachments/assets/a08ef04c-e9c0-4267-ab9b-c4a109c8de6d" />
 
-<img width="1943" height="1162" alt="截屏2026-06-22 21 38 23" src="https://github.com/user-attachments/assets/cd79c22a-1e60-471e-a3be-9e2ea32b4f17" />
-
-
 
 ## 当前定位
 
